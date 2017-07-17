@@ -31,12 +31,6 @@ int main()
 
 
 
-
-
-	p_addr;//program address
-
-	p_addr
-
     return 0;
 }
 
