@@ -65,5 +65,8 @@
     <None Include="test_hex\test9_ok.hex">
       <Filter>IntelHEX Files</Filter>
     </None>
+    <None Include="test_hex\test10_ok.hex">
+      <Filter>IntelHEX Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

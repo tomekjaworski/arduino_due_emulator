@@ -102,6 +102,14 @@ int32_t IntelHEXParser::Load(IMemoryLoaderConnector & connector)
 				continue;
 			}
 
+			// entry point
+			if (record_type == 5)
+			{
+				// for future use
+				uint32_t ep_addr = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
+				continue;
+			}
+
 			throw IntelHexParserException(b::str(b::format("Unknown record type: %02x") % record_type));
 
 

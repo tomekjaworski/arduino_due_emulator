@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="test_hex\test10_ok.hex" />
     <None Include="test_hex\test1_ok.hex" />
     <None Include="test_hex\test2_ok.hex" />
     <None Include="test_hex\test3_ok.hex" />

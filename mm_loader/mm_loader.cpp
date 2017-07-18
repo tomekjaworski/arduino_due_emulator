@@ -62,5 +62,7 @@ int main()
 	intelhex_test("test_hex\\test6_ok.hex", 0);
 	intelhex_test("test_hex\\test7_ok.hex", 1);
 	intelhex_test("test_hex\\test8_ok.hex", 1);
+	intelhex_test("test_hex\\test9_ok.hex", 1);
+	intelhex_test("test_hex\\test10_ok.hex", 1);
 	return 0;
 }
