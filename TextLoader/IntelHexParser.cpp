@@ -9,17 +9,17 @@
 namespace b = boost;
 
 
-IntelHEXParser::IntelHEXParser(const std::string& file_name)
+IntelHexParser::IntelHexParser(const std::string& file_name)
 	: file_name(file_name)
 {
 }
 
-IntelHEXParser::~IntelHEXParser()
+IntelHexParser::~IntelHexParser()
 {
 }
 
 
-int32_t IntelHEXParser::Load(IMemoryLoaderConnector & connector)
+int32_t IntelHexParser::Load(IMemoryLoaderConnector & connector)
 {
 	std::ifstream file(this->file_name, std::ios::in);
 	if (!file.is_open())
@@ -52,7 +52,7 @@ int32_t IntelHEXParser::Load(IMemoryLoaderConnector & connector)
 			// read the data
 			uint8_t data[600];
 			int count = row.size() / 2;
-			for (int i = 1; i < row.size(); i += 2)
+			for (uint32_t i = 1; i < row.size(); i += 2)
 			{
 				if (!isxdigit(row[i]) || !isxdigit(row[i + 1]))
 					throw IntelHexParserException("Hex digit expected");

@@ -25,7 +25,7 @@ public:
 };
 
 
-class TEXTLOADER_API IntelHexParserException : public LoaderExecption
+class IntelHexParserException : public LoaderExecption
 {
 public:
 	IntelHexParserException(const std::string& msg)
@@ -35,29 +35,29 @@ public:
 };
 
 
-class TEXTLOADER_API IntelHEXParser
+class IntelHexParser
 {
 private:
 	std::string file_name;
 
 public:
-	IntelHEXParser(const std::string& file_name);
-	~IntelHEXParser();
+	TEXTLOADER_API IntelHexParser(const std::string& file_name);
+	TEXTLOADER_API ~IntelHexParser();
 
-	int32_t Load(IMemoryLoaderConnector& connector);
+	TEXTLOADER_API int32_t Load(IMemoryLoaderConnector& connector);
 
 };
 
+class ELFParser
+{
+private:
+	std::string file_name;
 
-/*
-// This class is exported from the TextLoader.dll
-class TEXTLOADER_API CTextLoader {
 public:
-	CTextLoader(void);
-	// TODO: add your methods here.
+	TEXTLOADER_API ELFParser(const std::string& file_name);
+	TEXTLOADER_API ~ELFParser();
+
+	TEXTLOADER_API int32_t Load(IMemoryLoaderConnector& connector);
+
+
 };
-
-extern TEXTLOADER_API int nTextLoader;
-
-TEXTLOADER_API int fnTextLoader(void);
-*/
