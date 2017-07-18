@@ -4,59 +4,63 @@
 #include "stdafx.h"
 #include <stdint.h>
 
-#include <unordered_map>
-#include <memory>
+#include <stdexcept>
+#include <iostream>
+#include <string>
 
-class IMemoryLoaderSink
+#include "..\MemoryMap\DummyMemoryMap.hpp"
+#include "..\TextLoader\TextLoader.hpp"
+
+
+void intelhex_test(const char* file_name, bool expected_result)
 {
-public:
-	virtual bool CanRead(uint32_t address) const = 0;
-	virtual bool CanWrite(uint32_t address) const = 0;
+	DummyMemoryMap dmm;
+	IntelHEXParser p(file_name);
 
-	virtual bool Read(uint32_t address, uint8_t& value) = 0;
-	virtual bool Write(uint32_t address, uint8_t value) = 0;
-};
+	std::cout << "Test for " << file_name << ": ";
 
-
-
-class DummyMemoryMap : public IMemoryLoaderSink
-{
-private:
-	std::unordered_map<uint32_t, std::unique_ptr<uint8_t[]>> pages;
-
-public:
-
-
-	// Inherited via IMemoryLoaderSink
-	virtual bool CanRead(uint32_t address) const override {	return false; }
-
-	virtual bool CanWrite(uint32_t address) const override { return false; }
-
-	virtual bool Read(uint32_t address, uint8_t & value) override
+	bool exception = false;
+	std::string msg = "";
+	int bytes = -1;
+	try {
+		bytes = p.Load(dmm);
+	}
+	catch (const std::exception& ex)
 	{
-		return false;
+		exception = true;
+		msg = ex.what();
+	}
+	catch (...)
+	{
+		exception = true;
+		msg = "(...)";
 	}
 
-	virtual bool Write(uint32_t address, uint8_t value) override
-	{
-		uint32_t page_id = address / 128;
-		address %= 128;
-
-		if (pages.find(page_id) == pages.end())
-			pages[page_id] = std::make_unique<uint8_t[]>(128); // .insert({ page_id, std::make_shared<uint8_t[128]>() });
-
-		pages[page_id][address] = value;
-		return true;
-	}
-
-};
 
 
+	if (!exception == expected_result)
+		std::cout << " AS EXPECTED";
+	else
+		std::cout << " ERROR";
+	if (exception)
+		std::cout << " Exception: " << msg;
+	else
+		std::cout << "; Byte count=" << bytes;
 
+	std::cout << std::endl;
+
+
+}
 
 int main()
 {
-	DummyMemoryMap dmm;
-    return 0;
+	intelhex_test("test_hex\\test1_ok.hex", 1);
+	intelhex_test("test_hex\\test2_ok.hex", 1);
+	intelhex_test("test_hex\\test3_ok.hex", 1);
+	intelhex_test("test_hex\\test4_ok.hex", 1);
+	intelhex_test("test_hex\\test5_ok.hex", 0);
+	intelhex_test("test_hex\\test6_ok.hex", 0);
+	intelhex_test("test_hex\\test7_ok.hex", 1);
+	intelhex_test("test_hex\\test8_ok.hex", 1);
+	return 0;
 }
-
