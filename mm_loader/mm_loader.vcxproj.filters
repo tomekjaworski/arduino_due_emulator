@@ -16,6 +16,9 @@
     <Filter Include="IntelHEX Files">
       <UniqueIdentifier>{200c16f5-a153-450e-a6c2-c5092175f204}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ELF Files">
+      <UniqueIdentifier>{23164042-61ce-4e6c-a023-8f6c689ef057}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -67,6 +70,9 @@
     </None>
     <None Include="test_hex\test10_ok.hex">
       <Filter>IntelHEX Files</Filter>
+    </None>
+    <None Include="test_axf\test0_ok.axf">
+      <Filter>ELF Files</Filter>
     </None>
   </ItemGroup>
 </Project>
