@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="IntelHEX Files">
+      <UniqueIdentifier>{200c16f5-a153-450e-a6c2-c5092175f204}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -24,6 +27,12 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="elf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="features.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -32,5 +41,29 @@
     <ClCompile Include="mm_loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="test_hex\test1_ok.hex">
+      <Filter>IntelHEX Files</Filter>
+    </None>
+    <None Include="test_hex\test2_ok.hex">
+      <Filter>IntelHEX Files</Filter>
+    </None>
+    <None Include="test_hex\test3_ok.hex">
+      <Filter>IntelHEX Files</Filter>
+    </None>
+    <None Include="test_hex\test4_ok.hex">
+      <Filter>IntelHEX Files</Filter>
+    </None>
+    <None Include="test_hex\test7_ok.hex">
+      <Filter>IntelHEX Files</Filter>
+    </None>
+    <None Include="test_hex\test8_ok.hex">
+      <Filter>IntelHEX Files</Filter>
+    </None>
+    <None Include="test_hex\test9_ok.hex">
+      <Filter>IntelHEX Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

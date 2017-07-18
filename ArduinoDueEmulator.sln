@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test1", "Test1\Test1.vcxproj", "{94325314-7205-4EF0-905B-BB56ABD321DB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mm_loader", "mm_loader\mm_loader.vcxproj", "{B1C903C4-7BF1-49BE-8AB1-BAC59BF1BA59}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextLoader", "TextLoader\TextLoader.vcxproj", "{FB9348FA-C627-4007-804D-FEA66D2C5B28}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MemoryMap", "MemoryMap\MemoryMap.vcxproj", "{18E074E3-B1DC-425F-A057-36C4A09CFB67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +35,22 @@ Global
 		{B1C903C4-7BF1-49BE-8AB1-BAC59BF1BA59}.Release|x64.Build.0 = Release|x64
 		{B1C903C4-7BF1-49BE-8AB1-BAC59BF1BA59}.Release|x86.ActiveCfg = Release|Win32
 		{B1C903C4-7BF1-49BE-8AB1-BAC59BF1BA59}.Release|x86.Build.0 = Release|Win32
+		{FB9348FA-C627-4007-804D-FEA66D2C5B28}.Debug|x64.ActiveCfg = Debug|x64
+		{FB9348FA-C627-4007-804D-FEA66D2C5B28}.Debug|x64.Build.0 = Debug|x64
+		{FB9348FA-C627-4007-804D-FEA66D2C5B28}.Debug|x86.ActiveCfg = Debug|Win32
+		{FB9348FA-C627-4007-804D-FEA66D2C5B28}.Debug|x86.Build.0 = Debug|Win32
+		{FB9348FA-C627-4007-804D-FEA66D2C5B28}.Release|x64.ActiveCfg = Release|x64
+		{FB9348FA-C627-4007-804D-FEA66D2C5B28}.Release|x64.Build.0 = Release|x64
+		{FB9348FA-C627-4007-804D-FEA66D2C5B28}.Release|x86.ActiveCfg = Release|Win32
+		{FB9348FA-C627-4007-804D-FEA66D2C5B28}.Release|x86.Build.0 = Release|Win32
+		{18E074E3-B1DC-425F-A057-36C4A09CFB67}.Debug|x64.ActiveCfg = Debug|x64
+		{18E074E3-B1DC-425F-A057-36C4A09CFB67}.Debug|x64.Build.0 = Debug|x64
+		{18E074E3-B1DC-425F-A057-36C4A09CFB67}.Debug|x86.ActiveCfg = Debug|Win32
+		{18E074E3-B1DC-425F-A057-36C4A09CFB67}.Debug|x86.Build.0 = Debug|Win32
+		{18E074E3-B1DC-425F-A057-36C4A09CFB67}.Release|x64.ActiveCfg = Release|x64
+		{18E074E3-B1DC-425F-A057-36C4A09CFB67}.Release|x64.Build.0 = Release|x64
+		{18E074E3-B1DC-425F-A057-36C4A09CFB67}.Release|x86.ActiveCfg = Release|Win32
+		{18E074E3-B1DC-425F-A057-36C4A09CFB67}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
