@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstdint>
+#include "registers.h"
 
 typedef struct {
 	unsigned int C = 0;
@@ -12,21 +13,6 @@ typedef struct {
 	unsigned int Z = 0;
 	unsigned int V = 0;
 }CPSR;
-
-typedef struct {
-	//GENERAL PURPOSES REGISTERS
-	uint32_t R0 = 0, R1 = 0, R2 = 0, R3 = 0, R4 = 0, R5 = 0, R6 = 0, R7 = 0;  //low registers
-	uint32_t R8 = 0, R9 = 0, R10 = 0, R11 = 0, R12 = 0; // high registers
-
-	//SPECIAL PURPOSE REGISTER
-	//R13 SP Stack pointer
-	//R14 LR Link Register
-	//R15 PC Program Counter
-	uint32_t R13 = 0, R14 = 0, R15 = 0;
-
-	//SPECIAL REGISTERS
-	uint32_t PSR = 0, PRIMASK = 0, FAULTMASK = 0, BASEPRI = 0, CONTROL = 0;
-}REGISTERS;
 
 /**
 BRANCH AND EXCHANGE
@@ -310,47 +296,8 @@ void branch_exchange(unsigned int *bits) {
 
 	unsigned int register_number = bit_to_value(bits, BAE_START, BAE_STOP);
 
-	switch (register_number) {
-	case 0:
-		registers.R15 = registers.R0;
-		break;
-	case 1:
-		registers.R15 = registers.R1;
-		break;
-	case 2:
-		registers.R15 = registers.R2;
-		break;
-	case 3:
-		registers.R15 = registers.R3;
-		break;
-	case 4:
-		registers.R15 = registers.R4;
-		break;
-	case 5:
-		registers.R15 = registers.R5;
-		break;
-	case 6:
-		registers.R15 = registers.R6;
-		break;
-	case 7:
-		registers.R15 = registers.R7;
-		break;
-	case 8:
-		registers.R15 = registers.R8;
-		break;
-	case 9:
-		registers.R15 = registers.R9;
-		break;
-	case 10:
-		registers.R15 = registers.R10;
-		break;
-	case 11:
-		registers.R15 = registers.R11;
-		break;
-	case 12:
-		registers.R15 = registers.R12;
-		break;
-	}
+	registers.registers[R15] = registers.registers[register_number];
+	
 	/**
 	pipeline flush and refill from the address specified by RN
 	*/
@@ -373,15 +320,19 @@ void branch_and_branch_with_link(unsigned int *bits) {
 	if (bits[24] == 0) {
 		printf("Branch without link");
 		offset = bit_to_value_branch(bits, OFFSET_START, OFFSET_STOP);
-		registers.R15 += offset;
+		registers.registers[R15] += offset;
 	}
 	else {
 		printf("Branch with link");
-		registers.R14 = registers.R15;
+		registers.registers[R14] = registers.registers[R15];
 	}
 }
 
-void immediate(unsigned int *bits) {
+void logical_shift_left(unsigned int *bits) {
+
+};
+
+int immediate(unsigned int *bits) {
 	/**
 	if Immediate bit 1
 	opr2 is immidiate
@@ -390,9 +341,9 @@ void immediate(unsigned int *bits) {
 	*/
 	int operand2;
 	if (bits[IMM] == 1) {
-		int shift = bit_to_value(bits, 8, 11);
-		int immediate_value = bit_to_value(bits, 8, 11);
-		operand2 = immediate_value
+		int rotate = bit_to_value(bits, 8, 11);
+		int immediate_value = bit_to_value(bits, 0, 7);
+		operand2 = immediate_value >> (rotate * 2);
 	}
 	else if (bits[IMM] == 0) {
 
@@ -400,6 +351,7 @@ void immediate(unsigned int *bits) {
 	else {
 		printf("Unexpected case in immidiate function\n");
 	}
+	return operand2;
 };
 
 /**
@@ -407,7 +359,7 @@ ARM INSTRUCTION SET
 */
 void arm_and(unsigned int *bits) {
 	int operand1 = bit_to_value(bits, RN_START, RN_STOP);
-	int operand2 = immediate(unsigned int *bits);
+	int operand2 = immediate(bits);
 };
 
 int main()
