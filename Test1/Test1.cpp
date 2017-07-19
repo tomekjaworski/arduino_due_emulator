@@ -328,9 +328,43 @@ void branch_and_branch_with_link(unsigned int *bits) {
 	}
 }
 
-void logical_shift_left(unsigned int *bits) {
-
+uint32_t logical_shift_left(unsigned int *bits, unsigned int shift, uint32_t data) {
+	uint32_t result;
+	if (shift < 32) {
+		unsigned int index = 32 - shift;
+		flags.C = bits[index];
+		result = data << shift;
+		return result;
+	}
+	else if (shift == 32) {
+		flags.C = bits[0];
+		return 0;
+	}
+	else {
+		flags.C = 0;
+		return 0;
+	}
 };
+
+uint32_t logical_shift_right(unsigned int *bits, unsigned int shift, uint32_t data) {
+	uint32_t result;
+	if (shift < 32) {
+		unsigned int index = shift - 1;
+		flags.C = bits[index];
+		result = data >> shift;
+		return result;
+	}
+	else if (shift == 32) {
+		flags.C = bits[31];
+		return 0;
+	}
+	else {
+		flags.C = 0;
+		return 0;
+	}
+};
+
+
 
 int immediate(unsigned int *bits) {
 	/**

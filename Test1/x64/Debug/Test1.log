@@ -1,4 +1,4 @@
 ﻿  Test1.cpp
-c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(288): warning C4715: 'decode_cond': tüm denetim yolları değer döndürmez
+c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(286): warning C4715: 'decode_cond': tüm denetim yolları değer döndürmez
   Test1.vcxproj -> C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\x64\Debug\Test1.exe
   Test1.vcxproj -> C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\x64\Debug\Test1.pdb (Partial PDB)
