@@ -1,25 +1,82 @@
 #include "thumbs.h"
 
 
-static inline void ReadMemory(unsigned __int16* p_addr) {
+// This file is for THUMB instruction set
+
+/* Templete for bit field re-invention*/
+template <class T, uint16_t s, uint16_t e = s>
+struct bits {
+	T ref;
+	static constexpr T mask = (T)(~((T)(~0) << (e - s + 1))) << s;
+	void operator=(const T val) { ref = (ref & ~mask) | ((val & (mask >> s)) << s); }
+	operator T() const { return (ref & mask) >> s; }
+};
+
+template <uint16_t s, uint16_t e = s>
+using bits16 = bits<uint16_t, s, e>;
+
+/*Unions for bit field*/
+
+//union for move shifted register
+union {
+	uint16_t raw = 0;
+	bits16<0, 1, 2> FAULT_QUEUE;
+	bits16<2>    CT_PIN_POLARITY;
+	bits16<3>    INT_PIN_POLARITY;
+	bits16<4>    INT_CT_MODE;
+	bits16<5, 6> OPERATION_MODE;
+	bits16<7>    RESOLUTION;
+} config;
+
+
+static inline void ReadMemory(uint16_t& p_addr) {
 
 
 }
 
-static inline void read_16th_inst(unsigned __int16& p_addr) {
+static inline void read_16th_inst(uint16_t& p_addr, uint32* regs[]) {
 	// to decide which opcode this function uses first 5 bits 
-	switch(p_addr & 0xF800) {
-		//Move shifted register instructions
-	case 0x00: //MOVS Rd, Rs, LSL #Offset5
-		regs[ p_addr & 0x0007] = regs[ (p_addr & 0x0038) << 3] << ((p_addr & 0x0560) << 6)// immediate value of bit shift
+	switch(p_addr & 0xF800 >> 11) {
+		/*Move shifted register instructions family*/
+	case 0b00000: //MOVS Rd, Rs, LSL #Offset5
+		regs[ p_addr & 0x0007] = regs[ (p_addr & 0x0038) >> 3] << ((p_addr & 0x0560) >> 6) //writtten with bit shift & mask
+		/*TODO: to put other way to write
+		regs[ ]
+		*/
 		break;
-	case 0x: //
+	case 0b00001: //MOVS Rd, Rs, LSR #Offset5
+		regs[p_addr & 0x0007] = regs[(p_addr & 0x0038) >> 3] >> ((p_addr & 0x0560) << 6) //writtten with bit shift & mask
 		break;
-	case 0x: //
+	case 0x00010: //MOVS Rd, Rs, ASR #Offset5
+		uint32_t& Rd = regs[(p_addr & 0x0038) >> 3];
+		if (Rd & 0x8000 == 0x8000) { //if the top bit is 1
+			//TODO: implement arithmatical bit shift
+		}else { // if the top bit is 0
+			regs[p_addr & 0x0007] = Rd >> ((p_addr & 0x0560) >> 6) //this is the same as logical
+		}
 		break;
-	case 0x: //
+
+		/*Add, Substract instructions family*/
+	case 0b00011:
+		switch(p_addr & 0x0600 >> 8) {
+		case 0b00: //ADDS Rd, Rs, Rn
+			regs[p_addr & 0x0007] = reg[(p_addr & 0x0038) >> 3] + reg[(p_addr & 0x01C0) >> 6];
+			break;
+		case 0b01: //ADDS Rd, Rs, #Offset3
+			regs[p_addr & 0x0007] = reg[(p_addr & 0x0038) >> 3] + ((p_addr & 0x01C0) >> 6);
+			break;
+		case 0b10: //SUBS Rd, Rs, Rn
+			regs[p_addr & 0x0007] = reg[(p_addr & 0x0038) >> 3] - reg[(p_addr & 0x01C0) >> 6];
+			break;
+		case 0b11: //ADDS Rd, Rs, #Offset3
+			regs[p_addr & 0x0007] = reg[(p_addr & 0x0038) >> 3] - ((p_addr & 0x01C0) >> 6);
+			break;
+		}
 		break;
-	case 0x: //
+
+		//move, compare, add, substract immediate family
+	case 0b00100: //MOVS Rd, #Offset8
+		regs[p_addr & 0b0000011100000 >> 8] = p_addr & 0x00FF
 		break;
 	case 0x: //
 		break;

@@ -1,4 +1,4 @@
-// ConsoleApplication1.cpp : Konsol uygulamasý için giriþ noktasýný tanýmlar.
+// Test1.cpp : Defines the entry point for the console application.
 //
 
 #include "stdafx.h"
