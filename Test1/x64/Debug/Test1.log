@@ -1,4 +1,7 @@
 ﻿  Test1.cpp
-c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(286): warning C4715: 'decode_cond': tüm denetim yolları değer döndürmez
+c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(366): warning C4804: '<' : işlemde güvenli olmayan 'bool' türü kullanımı
+c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(370): warning C4554: '|': olası hata için işleç önceliğini denetleyin; önceliği netleştirmek için parantez kullanın
+c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(210): warning C4715: 'decode_cond': tüm denetim yolları değer döndürmez
+c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(375): warning C4715: 'arithmetic_shift_right': tüm denetim yolları değer döndürmez
   Test1.vcxproj -> C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\x64\Debug\Test1.exe
   Test1.vcxproj -> C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\x64\Debug\Test1.pdb (Partial PDB)

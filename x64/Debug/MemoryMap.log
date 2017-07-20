@@ -1,1 +1,3 @@
-﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Platforms\x64\PlatformToolsets\v141\Toolset.targets(36,5): error MSB8036: Windows SDK sürümü 10.0.14393.0 bulunamadı. Windows SDK'nin gerekli sürümünü yükleyin veya proje özellikleri sayfasından ya da çözüme sağ tıklayıp "Çözümü yeniden hedefle"yi seçerek SDK sürümünü değiştirin.
+﻿  stdafx.cpp
+  DummyMemoryMap.cpp
+  MemoryMap.vcxproj -> C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\x64\Debug\MemoryMap.lib
