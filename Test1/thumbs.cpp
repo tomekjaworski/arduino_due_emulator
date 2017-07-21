@@ -23,7 +23,7 @@ union {
 	bits16<0, 1, 2> FAULT_QUEUE;
 	bits16<3, 4>    CT_PIN_POLARITY;
 	bits16<5, 6, 7, 8>    INT_PIN_POLARITY;
-	bits16<4>    INT_CT_MODE;
+	bits16<9>    INT_CT_MODE;
 	bits16<5, 6> OPCODE;
 	bits16<7>    RESOLUTION;
 } movs;
@@ -92,7 +92,7 @@ static inline void read_16th_inst(uint16_t& p_addr, uint32_t* regs[]) {
 			//ALU operations
 			uint8_t Rd = (p_addr & 0b111);
 			uint8_t Rs = (p_addr & 0b111000) >> 3;
-			switch ((p_addr & 0000001111000000) >> 6) {
+			switch ((p_addr & 0b0000001111000000) >> 6) {
 			case 0b0000: //ANDS Rd, Rd, Rs
 				regs[Rd] &= regs[Rs];
 				break;
@@ -143,13 +143,51 @@ static inline void read_16th_inst(uint16_t& p_addr, uint32_t* regs[]) {
 				regs[Rd] = ~regs[Rs];
 				break;
 			}
+		else {
 			//Hi register operations, branch exchange
-			default:
-				printf("Error: no thumb instruction for bit codes!\n");
+			uint8_t Rd = (p_addr & 0b111); //Rs or Hs
+			uint8_t Rs = (p_addr & 0b111000) >> 3; // Rs or Hs
+			switch ((p_addr & 0b0000001111000000) >> 6) {
+			case 0b0001: //ADD Rd, Rd, Hs
+				regs[Rd] += regs[Rs + 8];
+				break;
+			case 0b0010: //ADD Hd, Hd, Rs
+				regs[Rd + 8] += regs[Rs];
+				break;
+			case 0b0011: //ADD Hd, Hd, Hs
+				regs[Rd + 8] += regs[Rs + 8];
+				break;
+			case 0b0101: //CMP Rd, Hs
+				//TODO: implement C flag
+				break;
+			case 0b0110: //CMP Hd, Rs
+				//TODO: implement C flag
+				break;
+			case 0b0111: //CMP Hd, Hs
+				//TODO: implement C flag
+				break;
+			case 0b1001: //MOV Rd, Hs
+				regs[Rd] = regs[Rs + 8];
+				break;
+			case 0b1010: //MOV Hd, Rs
+				regs[Rd + 8] = regs[Rs];
+				break;
+			case 0b1011: //MOV Hd, Hs
+				regs[Rd + 8] = regs[Rs + 8];
+				break;
+			case 0b1100: //BX Rs
+				regs[15] = regs[Rs];
+				//TODO: switch the state of processor
+				break;
+			case 0b1101: //BX Hs
+				regs[15] = regs[Rs + 8];
+				//TODO:switch the state of processor
 				break;
 			}
 		}
-		break;
+	case 0b01001: //PC-relative load LDR Rd, [PC, #Imm]
+		regs[] = flash(regs[15] + ); //TODO: implement reader from address
+
 	default:
 
 		break;
