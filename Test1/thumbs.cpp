@@ -1,38 +1,6 @@
+//
+
 #include "thumbs.h"
-
-
-// This file is for THUMB instruction set
-
-/* Templete for bit field re-invention*/
-template <class T, uint16_t s, uint16_t e = s>
-struct bits {
-	T ref;
-	static constexpr T mask = (T)(~((T)(~0) << (e - s + 1))) << s;
-	void operator=(const T val) { ref = (ref & ~mask) | ((val & (mask >> s)) << s); }
-	operator T() const { return (ref & mask) >> s; }
-};
-
-template <uint16_t s, uint16_t e = s>
-using bits16 = bits<uint16_t, s, e>;
-
-/*Unions for bit field*/
-
-//union for move shifted register
-union {
-	uint16_t raw = 0;
-	bits16<0, 1, 2> FAULT_QUEUE;
-	bits16<3, 4>    CT_PIN_POLARITY;
-	bits16<5, 6, 7, 8>    INT_PIN_POLARITY;
-	bits16<9>    INT_CT_MODE;
-	bits16<5, 6> OPCODE;
-	bits16<7>    RESOLUTION;
-} movs;
-
-
-static inline void ReadMemory(uint16_t& p_addr) {
-
-
-}
 
 static inline void read_16th_inst(uint16_t& p_addr, uint32_t* regs[]) {
 	// to decide which opcode this function uses first 5 bits 
