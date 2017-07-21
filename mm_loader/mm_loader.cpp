@@ -50,9 +50,9 @@ void test(const char* file_name, bool expected_result)
 
 int main()
 {
-	test<ELFParser>("test_axf\\test0_ok.axf", 1);
+	//test<ELFParser>("test_axf\\test0_ok.axf", 1);
 
-	/*
+	test<IntelHexParser>("test_hex\\GccApplication2.hex", 1);
 	test<IntelHexParser>("test_hex\\test1_ok.hex", 1);
 	test<IntelHexParser>("test_hex\\test2_ok.hex", 1);
 	test<IntelHexParser>("test_hex\\test3_ok.hex", 1);
@@ -63,6 +63,6 @@ int main()
 	test<IntelHexParser>("test_hex\\test8_ok.hex", 1);
 	test<IntelHexParser>("test_hex\\test9_ok.hex", 1);
 	test<IntelHexParser>("test_hex\\test10_ok.hex", 1);
-	*/
+	
 	return 0;
 }

@@ -74,5 +74,8 @@
     <None Include="test_axf\test0_ok.axf">
       <Filter>ELF Files</Filter>
     </None>
+    <None Include="test_hex\GccApplication2.hex">
+      <Filter>IntelHEX Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
