@@ -325,19 +325,32 @@ int32_t arithmetic_shift_right(int32_t number, unsigned int shift_count) {
 };
 
 uint32_t rotate_right(uint32_t number, unsigned int rotate_counter) {
-	uint32_t y = (number >> rotate_counter) & ~(-1 << (32 - rotate_counter));
-	uint32_t z = number << (32 - rotate_counter);
-	uint32_t  g = y | z;
-
+	rotate_counter = rotate_counter % 32;
 	if (rotate_counter >= 1)
 	{
+		uint32_t y = (number >> rotate_counter) & ~(-1 << (32 - rotate_counter));
+		uint32_t z = number << (32 - rotate_counter);
+		uint32_t  g = y | z;
 		flags.C = ((number >> (rotate_counter - 1)) & 0x00000001);
+		return g;
 	}
 	else
 	{
-		flags.C = (number & 0x80000000) >> 31;
+		//EXTENDED ROTATE
+		rotate_right_extended(number);
 	}
-	return g;
+}
+
+uint32_t rotate_right_extended(uint32_t number) {
+	flags.C = (number & 0x00000001);
+	number >> 1;
+	if (flags.C) {
+		number = number | 0x80000000;
+	}
+	else {
+		number = number & 0x8FFFFFFF;
+	}
+	return number;
 }
 
 /**
@@ -395,8 +408,8 @@ int main()
 	decode_cond(bits);
 	decode_opcode(bits);*/
 
-	int32_t a = -1;
-	int32_t result = rotate_right(a, 1);
+	int32_t a = 1;
+	int32_t result = rotate_right(a, 3);
 	printf("%x\n", result);
 	printf("%u", flags.C);
 
