@@ -30,4 +30,11 @@ typedef struct {
 	uint32_t PSR = 0, PRIMASK = 0, FAULTMASK = 0, BASEPRI = 0, CONTROL = 0;
 }REGISTERS;
 
+typedef struct {
+	unsigned int C = 0;
+	unsigned int N = 0;
+	unsigned int Z = 0;
+	unsigned int V = 0;
+}CPSR;
+
 #pragma once
