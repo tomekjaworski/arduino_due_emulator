@@ -5,109 +5,229 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstdint>
-
-typedef struct {
-	unsigned int C = 0;
-	unsigned int N = 0;
-	unsigned int Z = 0;
-	unsigned int V = 0;
-}CPSR;
-
-typedef struct {
-	//GENERAL PURPOSES REGISTERS
-	uint32_t R0 = 0, R1 = 0, R2 = 0, R3 = 0, R4 = 0, R5 = 0, R6 = 0, R7 = 0;  //low registers
-	uint32_t R8 = 0, R9 = 0, R10 = 0, R11 = 0, R12 = 0; // high registers
-
-	//SPECIAL PURPOSE REGISTER
-	//R13 SP Stack pointer
-	//R14 LR Link Register
-	//R15 PC Program Counter
-	uint32_t R13 = 0, R14 = 0, R15 = 0;
-
-	//SPECIAL REGISTERS
-	uint32_t PSR = 0, PRIMASK = 0, FAULTMASK = 0, BASEPRI = 0, CONTROL = 0;
-}REGISTERS;
-
-/**
-BRANCH AND EXCHANGE
-*/
-#define BAE_START 0
-#define BAE_STOP 3
-/**
-BRANCH AND BRANCH WITH LINK
-*/
-#define OFFSET_START 0
-#define OFFSET_STOP 23
-/**
-DATA PROCESSING INSTRUCTION
-ARM Instruction Set
-4.5 Data Processing
-
-26 and 27 are 0 all the time.
-*/
-#define OPR2_START 0
-#define OPR2_STOP 11
-#define	RD_START 12
-#define RD_STOP 15
-#define RN_START 16
-#define RN_STOP 19
-#define S 20
-#define OPCODE_START 21
-#define OPCODE_STOP 24
-#define IMM 25
-#define	COND_START 28
-#define	COND_STOP 31
+#include "cpu.h"
 
 CPSR flags;
 REGISTERS registers;
 uint32_t binary_data;
 
-unsigned int *get_bits(uint32_t n, unsigned int bitswanted) {
-	unsigned int *bits = (unsigned int*)malloc(bitswanted * sizeof(unsigned int));
+/**
+31-28 Cond
+27-4 mask
+11-0 Operand2
+*/
+union BRANCH_EXCHANGE
+{
+	uint32_t op;
+	struct {
+		uint32_t cond : 4;
+		uint32_t __mask0 : 24;
+		uint32_t _Rn : 4;
+	};
+};
 
-	unsigned int k;
-	for (k = 0; k<bitswanted; k++) {
-		unsigned int mask = 1 << k;
-		unsigned int masked_n = n & mask;
-		unsigned int thebit = masked_n >> k;
-		bits[k] = thebit;
-	}
+static_assert(sizeof(BRANCH_EXCHANGE) == 4, "sizeof(BRANCH_EXCHANGE) == 4");
 
-	return bits;
+/**
+31-28 Cond
+27-25 mask
+24 Link Bit
+23-0 offset
+*/
+union BRANCH_AND_BRANCH_WITH_LINK
+{
+	uint32_t op;
+	struct {
+		uint32_t cond : 4;
+		uint32_t __mask0 : 3;
+		uint32_t _L : 1;
+		uint32_t offset : 24;
+	};
+};
+
+static_assert(sizeof(BRANCH_AND_BRANCH_WITH_LINK) == 4, "sizeof(BRANCH_AND_BRANCH_WITH_LINK) == 4");
+
+/**
+31-28 Cond
+27-26 0 Mask
+25 Immediate Operand
+24-21 Opcode
+20 Set Condition
+19-16 Rn
+15-12 Rd
+11-0 Operand2
+*/
+union DATA_PROCESSING
+{
+	uint32_t op;
+	struct {
+		uint32_t cond : 4;
+		uint32_t __mask0 : 2;
+		uint32_t _I : 1;
+		uint32_t opcode : 4;
+		uint32_t _S : 1;
+		uint32_t _Rn : 4;
+		uint32_t _Rd : 4;
+		uint32_t operand2 : 12;
+	};
+};
+
+static_assert(sizeof(DATA_PROCESSING) == 4, "sizeof(DATA_PROCESSING) == 4");
+
+union MULT1
+{
+	uint32_t op;
+	struct {
+		uint32_t cond : 4;
+		uint32_t __mask0 : 6;
+		uint32_t _A : 1;
+		uint32_t _S : 1;
+
+		uint32_t _Rd : 4;
+		uint32_t _Rn : 4;
+		uint32_t _Rs : 4;
+
+		uint32_t __mask1 : 4;
+
+		uint32_t _Rm : 4;
+	};
+};
+
+static_assert(sizeof(MULT1) == 4, "sizeof(MULTI1) == 4");
+
+/**
+	USEFUL FUNCTIONS FOR PROCESSING INSTRUCTION
+*/
+
+unsigned int decode_cond(uint32_t cond) {
+	switch (cond) {
+	case 0:
+		printf("Suffix: EQ\n");
+		return flags.Z;
+		break;
+	case 1:
+		printf("Suffix: NE\n");
+		return !flags.Z;
+		break;
+	case 2:
+		printf("Suffix: CS\n");
+		return flags.C;
+		break;
+	case 3:
+		printf("Suffix: CC\n");
+		return !flags.C;
+		break;
+	case 4:
+		printf("Suffix: MI\n");
+		return flags.N;
+		break;
+	case 5:
+		printf("Suffix: PL\n");
+		return !flags.N;
+		break;
+	case 6:
+		printf("Suffix: VS\n");
+		return flags.V;
+		break;
+	case 7:
+		printf("Suffix: VC\n");
+		return !flags.V;
+		break;
+	case 8:
+		printf("Suffix: HI\n");
+		return (flags.C && !flags.Z);
+		break;
+	case 9:
+		printf("Suffix: LS\n");
+		return (!flags.C && flags.Z);
+		break;
+	case 10:
+		printf("Suffix: GE\n");
+		if (flags.N == flags.V) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
+		break;
+	case 11:
+		printf("Suffix: LT\n");
+		if (flags.N != flags.V) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
+		break;
+	case 12:
+		printf("Suffix: GT\n");
+		if (flags.Z == 0 && (flags.N == flags.V)) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
+		break;
+	case 13:
+		printf("Suffix: LE\n");
+		if (flags.Z == 1 && (flags.N != flags.V)) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
+		break;
+	case 14:
+		printf("Suffix: AL\n");
+		return 1;
+		break;
+	case 15:
+		printf("Suffix: This field is reserved!\n");
+		break;
+	};
 }
 
-void print_bits(unsigned int *bits, unsigned int bitswanted) {
-	int i;
-	for (i = bitswanted - 1; i >= 0;i--) {
-		printf("%u ", bits[i]);
+void branch_exchange(const uint32_t instruction) {
+	BRANCH_EXCHANGE inst;
+	inst.op = instruction;
+	/**
+	This instruction performs a branch by copying the contents of a general register, Rn,
+	into the program counter, PC(R15). The branch causes a pipeline flush and refill from the
+	address specified by Rn. This instruction also permits the instruction set to be
+	exchanged. When the instruction is executed, the value of Rn[0] determines whether
+	the instruction stream will be decoded as ARM or THUMB instructions.
+	*/
+
+	registers.registers[R15] = registers.registers[inst._Rn];
+
+	/**
+	pipeline flush and refill from the address specified by RN
+	*/
+	uint32_t least_significant_bit = inst.op & (0x00000001);
+
+	if (least_significant_bit == 1) {
+		printf("THUMB INSTRUCTION SET");
 	}
-	printf("\n");
+	else {
+		printf("ARM INSTRUCTION SET");
+	}
+};
+
+void branch_and_branch_with_link(const uint32_t instruction) {
+	BRANCH_AND_BRANCH_WITH_LINK inst;
+	inst.op = instruction;
+	uint32_t link_bit = (inst.op & 0x01000000);
+	if (link_bit == 0) {
+		printf("Branch without link");
+		registers.registers[R15] += inst.offset;
+	}
+	else {
+		printf("Branch with link");
+		registers.registers[R14] = registers.registers[R15];
+	}
 }
 
-int bit_to_value(unsigned int *bits, int start, int stop) {
-	int value = 0;
-
-	int i; int digit = 1;
-	for (i = start; i <= stop; i++) {
-		value = value + bits[i] * digit;
-		digit = digit * 2;
-	}
-	return value;
-}
-
-int bit_to_value_branch(unsigned int *bits, int start, int stop) {
-	int value = 0;
-
-	int i; int digit = 2;
-	for (i = start; i <= stop; i++) {
-		value = value + bits[i] * digit;
-		digit = digit * 2;
-	}
-	return value;
-}
-
-void decode_opcode(unsigned int *bits) {
-	unsigned int opcode = bit_to_value(bits, OPCODE_START, OPCODE_STOP);
+void decode_opcode(uint32_t opcode) {
 	switch (opcode) {
 	case 0:
 		printf("Operation: AND\n");
@@ -160,259 +280,123 @@ void decode_opcode(unsigned int *bits) {
 	};
 }
 
-unsigned int decode_cond(unsigned int *bits) {
-	unsigned int cond = bit_to_value(bits, COND_START, COND_STOP);
-	switch (cond) {
-	case 0:
-		printf("Suffix: EQ\n");
-		if (flags.Z == 1) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 1:
-		printf("Suffix: NE\n");
-		if (flags.Z == 0) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 2:
-		printf("Suffix: CS\n");
-		if (flags.C == 1) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 3:
-		printf("Suffix: CC\n");
-		if (flags.C == 0) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 4:
-		printf("Suffix: MI\n");
-		if (flags.N == 1) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 5:
-		printf("Suffix: PL\n");
-		if (flags.N == 0) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 6:
-		printf("Suffix: VS\n");
-		if (flags.V == 1) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 7:
-		printf("Suffix: VC\n");
-		if (flags.V == 0) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 8:
-		printf("Suffix: HI\n");
-		if (flags.C == 1 && flags.Z == 0) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 9:
-		printf("Suffix: LS\n");
-		if (flags.C == 0 && flags.Z == 1) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 10:
-		printf("Suffix: GE\n");
-		if (flags.N == flags.V) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 11:
-		printf("Suffix: LT\n");
-		if (flags.N != flags.V) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 12:
-		printf("Suffix: GT\n");
-		if (flags.Z == 0 && (flags.N == flags.V)) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 13:
-		printf("Suffix: LE\n");
-		if (flags.Z == 1 && (flags.N != flags.V)) {
-			return 1;
-		}
-		else {
-			return 0;
-		}
-		break;
-	case 14:
-		printf("Suffix: AL\n");
-		return 1;
-		break;
-	case 15:
-		printf("Suffix: This field is reserved!\n");
-		break;
-	};
-}
-
-void branch_exchange(unsigned int *bits) {
-	/**
-	This instruction performs a branch by copying the contents of a general register, Rn,
-	into the program counter, PC(R15). The branch causes a pipeline flush and refill from the
-	address specified by Rn. This instruction also permits the instruction set to be
-	exchanged. When the instruction is executed, the value of Rn[0] determines whether
-	the instruction stream will be decoded as ARM or THUMB instructions.
-	*/
-
-	unsigned int register_number = bit_to_value(bits, BAE_START, BAE_STOP);
-
-	switch (register_number) {
-	case 0:
-		registers.R15 = registers.R0;
-		break;
-	case 1:
-		registers.R15 = registers.R1;
-		break;
-	case 2:
-		registers.R15 = registers.R2;
-		break;
-	case 3:
-		registers.R15 = registers.R3;
-		break;
-	case 4:
-		registers.R15 = registers.R4;
-		break;
-	case 5:
-		registers.R15 = registers.R5;
-		break;
-	case 6:
-		registers.R15 = registers.R6;
-		break;
-	case 7:
-		registers.R15 = registers.R7;
-		break;
-	case 8:
-		registers.R15 = registers.R8;
-		break;
-	case 9:
-		registers.R15 = registers.R9;
-		break;
-	case 10:
-		registers.R15 = registers.R10;
-		break;
-	case 11:
-		registers.R15 = registers.R11;
-		break;
-	case 12:
-		registers.R15 = registers.R12;
-		break;
+uint32_t logical_shift_left(uint32_t number, unsigned int shift_count) {
+	if (shift_count < 32) {
+		flags.C = ((number >> (31 - shift_count + 1)) & 0x00000001);
+		return (number << shift_count);
 	}
-	/**
-	pipeline flush and refill from the address specified by RN
-	*/
-
-	if (bits[0] == 1) {
-		printf("THUMB INSTRUCTION SET");
-	}
-	else if (bits[0] == 0) {
-		printf("ARM INSTRUCTION SET");
+	else if (shift_count == 32) {
+		flags.C = (number & 0x00000001);
+		return 0;
 	}
 	else {
-		printf("There is a problem identifying instruction set");
+		flags.C = 0;
+		return 0;
 	}
 };
 
-void branch_and_branch_with_link(unsigned int *bits) {
-	//Link bit is 24
-	//Offset is 0-23
-	int offset = 0;
-	if (bits[24] == 0) {
-		printf("Branch without link");
-		offset = bit_to_value_branch(bits, OFFSET_START, OFFSET_STOP);
-		registers.R15 += offset;
+uint32_t logical_shift_right(uint32_t number, unsigned int shift_count) {
+	
+	if (shift_count < 32) {
+		flags.C = ((number >> (shift_count - 1)) & 0x00000001);
+		return (number >> shift_count);
+	}
+	else if (shift_count == 32) {
+		flags.C = number >> 31;
+		return 0;
 	}
 	else {
-		printf("Branch with link");
-		registers.R14 = registers.R15;
+		flags.C = 0;
+		return 0;
+	}
+};
+
+int32_t arithmetic_shift_right(int32_t number, unsigned int shift_count) {
+
+	if (0 < shift_count && shift_count < 32) {
+		flags.C = ((number >> (shift_count - 1)) & 0x00000001);
+		return (number >> shift_count);
+	}
+	else if ((shift_count >= 32) | (shift_count == 0)) {
+		flags.C = (number >> 31) & 0x00000001;
+		return (number >> 31);
+	}
+	
+};
+
+uint32_t rotate_right(uint32_t number, unsigned int rotate_counter) {
+	rotate_counter = rotate_counter % 32;
+	if (rotate_counter >= 1)
+	{
+		uint32_t y = (number >> rotate_counter) & ~(-1 << (32 - rotate_counter));
+		uint32_t z = number << (32 - rotate_counter);
+		uint32_t  g = y | z;
+		flags.C = ((number >> (rotate_counter - 1)) & 0x00000001);
+		return g;
+	}
+	else
+	{
+		//EXTENDED ROTATE
+		rotate_right_extended(number);
 	}
 }
 
-void immediate(unsigned int *bits) {
+uint32_t rotate_right_extended(uint32_t number) {
+	flags.C = (number & 0x00000001);
+	number >> 1;
+	if (flags.C) {
+		number = number | 0x80000000;
+	}
+	else {
+		number = number & 0x8FFFFFFF;
+	}
+	return number;
+}
+
+/**
+uint32_t immediate(DATA_PROCESSING inst) {
 	/**
 	if Immediate bit 1
 	opr2 is immidiate
 	else
 	opr2 is register
-	*/
-	int operand2;
-	if (bits[IMM] == 1) {
-		int shift = bit_to_value(bits, 8, 11);
-		int immediate_value = bit_to_value(bits, 8, 11);
-		operand2 = immediate_value
+	
+	
+	int immediate_bit = (inst.op & 0x02000000);
+	if (immediate_bit == 1) {
+		int rotate = (inst.operand2 >> 8);
+		int immediate_value = (inst.operand2 & 0x0000007F);
+		uint32_t y = (immediate_value >> (rotate * 2)) & ~(-1 << (32 - (rotate * 2)));
+		uint32_t z = immediate_value << (32 - (rotate * 2));
+		uint32_t  g = y | z;
+		return g;
 	}
-	else if (bits[IMM] == 0) {
-
+	else if (immediate_bit == 0) {
+		switch (inst.)
+		{
+		default:
+			break;
+		}
 	}
 	else {
 		printf("Unexpected case in immidiate function\n");
 	}
 };
+*/
+
+
 
 /**
 ARM INSTRUCTION SET
-*/
+
 void arm_and(unsigned int *bits) {
 	int operand1 = bit_to_value(bits, RN_START, RN_STOP);
-	int operand2 = immediate(unsigned int *bits);
+	int operand2 = immediate(bits);
 };
-
+*/
 int main()
 {
-	binary_data = uint32_t (0x00E00000);
+	/*binary_data = uint32_t (0x00E00000);
 
 	unsigned int  bitswanted = 32;
 
@@ -422,7 +406,13 @@ int main()
 	print_bits(bits, bitswanted);
 
 	decode_cond(bits);
-	decode_opcode(bits);
+	decode_opcode(bits);*/
+
+	int32_t a = 1;
+	int32_t result = rotate_right(a, 3);
+	printf("%x\n", result);
+	printf("%u", flags.C);
+
 
 	while (1) {};
 	return 0;
