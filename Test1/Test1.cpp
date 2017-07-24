@@ -12,6 +12,24 @@ REGISTERS registers;
 uint32_t binary_data;
 
 /**
+	FUNCTION PROTOTYPES
+*/
+uint32_t immediate(const uint32_t);
+unsigned int decode_cond(uint32_t);
+void branch_exchange(const uint32_t);
+void branch_and_branch_with_link(const uint32_t);
+void decode_opcode(const uint32_t);
+uint32_t logical_shift_left(uint32_t, unsigned int, uint32_t);
+uint32_t logical_shift_right(uint32_t, unsigned int, uint32_t);
+int32_t arithmetic_shift_right(int32_t, unsigned int, uint32_t);
+uint32_t rotate_right(uint32_t, unsigned int, uint32_t);
+uint32_t rotate_right_extended(uint32_t, uint32_t);
+uint32_t immediate(const uint32_t);
+
+uint32_t arm_and(uint32_t, uint32_t);
+
+
+/**
 31-28 Cond
 27-4 mask
 11-0 Operand2
@@ -227,173 +245,247 @@ void branch_and_branch_with_link(const uint32_t instruction) {
 	}
 }
 
-void decode_opcode(uint32_t opcode) {
-	switch (opcode) {
-	case 0:
-		printf("Operation: AND\n");
-		break;
-	case 1:
-		printf("Operation: EOR\n");
-		break;
-	case 2:
-		printf("Operation: SUB\n");
-		break;
-	case 3:
-		printf("Operation: RSB\n");
-		break;
-	case 4:
-		printf("Operation: ADD\n");
-		break;
-	case 5:
-		printf("Operation: ADC\n");
-		break;
-	case 6:
-		printf("Operation: SBC\n");
-		break;
-	case 7:
-		printf("Operation: RSC\n");
-		break;
-	case 8:
-		printf("Operation: TST\n");
-		break;
-	case 9:
-		printf("Operation: TEQ\n");
-		break;
-	case 10:
-		printf("Operation: CMP\n");
-		break;
-	case 11:
-		printf("Operation: CMN\n");
-		break;
-	case 12:
-		printf("Operation: ORR\n");
-		break;
-	case 13:
-		printf("Operation: MOV\n");
-		break;
-	case 14:
-		printf("Operation: BIC\n");
-		break;
-	case 15:
-		printf("Operation: MVN\n");
-		break;
-	};
+void decode_opcode(const uint32_t instruction) {
+	DATA_PROCESSING inst;
+	inst.op = instruction;
+	uint32_t operand1 = inst._Rn;
+	uint32_t operand2 = immediate(inst._I);
+	uint32_t result;
+	if (decode_cond(inst.cond)) {
+		switch (inst.opcode) {
+		case 0:
+			printf("Operation: AND\n");
+			result = arm_and(operand1, operand2);
+			registers.registers[inst._Rn] = result;
+			if (inst._S) {
+				if (!result) {
+					flags.Z = 1;
+				}
+				flags.N = result >> 31;
+			}
+			break;
+		case 1:
+			printf("Operation: EOR\n");
+			break;
+		case 2:
+			printf("Operation: SUB\n");
+			break;
+		case 3:
+			printf("Operation: RSB\n");
+			break;
+		case 4:
+			printf("Operation: ADD\n");
+			break;
+		case 5:
+			printf("Operation: ADC\n");
+			break;
+		case 6:
+			printf("Operation: SBC\n");
+			break;
+		case 7:
+			printf("Operation: RSC\n");
+			break;
+		case 8:
+			printf("Operation: TST\n");
+			break;
+		case 9:
+			printf("Operation: TEQ\n");
+			break;
+		case 10:
+			printf("Operation: CMP\n");
+			break;
+		case 11:
+			printf("Operation: CMN\n");
+			break;
+		case 12:
+			printf("Operation: ORR\n");
+			break;
+		case 13:
+			printf("Operation: MOV\n");
+			break;
+		case 14:
+			printf("Operation: BIC\n");
+			break;
+		case 15:
+			printf("Operation: MVN\n");
+			break;
+		};
+	}
 }
 
-uint32_t logical_shift_left(uint32_t number, unsigned int shift_count) {
+uint32_t logical_shift_left(uint32_t number, unsigned int shift_count,  uint32_t set_flags) {
+	unsigned int tmp_carry;
+	uint32_t result;
 	if (shift_count < 32) {
-		flags.C = ((number >> (31 - shift_count + 1)) & 0x00000001);
-		return (number << shift_count);
+		tmp_carry = ((number >> (31 - shift_count + 1)) & 0x00000001);
+		result = (number << shift_count);
 	}
 	else if (shift_count == 32) {
-		flags.C = (number & 0x00000001);
-		return 0;
+		tmp_carry = (number & 0x00000001);
+		result = 0;
 	}
 	else {
-		flags.C = 0;
-		return 0;
+		tmp_carry = 0;
+		result = 0;
 	}
+	if (set_flags)
+		flags.C = tmp_carry;
+	return result;
 };
 
-uint32_t logical_shift_right(uint32_t number, unsigned int shift_count) {
-	
+uint32_t logical_shift_right(uint32_t number, unsigned int shift_count,  uint32_t set_flags) {
+	unsigned int tmp_carry;
+	uint32_t result;
+
 	if (shift_count < 32) {
-		flags.C = ((number >> (shift_count - 1)) & 0x00000001);
-		return (number >> shift_count);
+		tmp_carry = ((number >> (shift_count - 1)) & 0x00000001);
+		result = (number >> shift_count);
 	}
 	else if (shift_count == 32) {
-		flags.C = number >> 31;
-		return 0;
+		tmp_carry = number >> 31;
+		result = 0;
 	}
 	else {
-		flags.C = 0;
-		return 0;
+		tmp_carry = 0;
+		result = 0;
 	}
+
+	if (set_flags)
+		flags.C = tmp_carry;
+
+	return result;
 };
 
-int32_t arithmetic_shift_right(int32_t number, unsigned int shift_count) {
+int32_t arithmetic_shift_right(int32_t number, unsigned int shift_count, uint32_t set_flags) {
+	unsigned int tmp_carry;
+	uint32_t result;
 
 	if (0 < shift_count && shift_count < 32) {
-		flags.C = ((number >> (shift_count - 1)) & 0x00000001);
-		return (number >> shift_count);
+		tmp_carry = ((number >> (shift_count - 1)) & 0x00000001);
+		result = (number >> shift_count);
 	}
 	else if ((shift_count >= 32) | (shift_count == 0)) {
-		flags.C = (number >> 31) & 0x00000001;
-		return (number >> 31);
+		tmp_carry = (number >> 31) & 0x00000001;
+		result = (number >> 31);
 	}
 	
+	if (set_flags)
+		flags.C = tmp_carry;
+
+	return result;
 };
 
-uint32_t rotate_right(uint32_t number, unsigned int rotate_counter) {
-	rotate_counter = rotate_counter % 32;
-	if (rotate_counter >= 1)
-	{
-		uint32_t y = (number >> rotate_counter) & ~(-1 << (32 - rotate_counter));
-		uint32_t z = number << (32 - rotate_counter);
-		uint32_t  g = y | z;
-		flags.C = ((number >> (rotate_counter - 1)) & 0x00000001);
-		return g;
-	}
-	else
-	{
-		//EXTENDED ROTATE
-		rotate_right_extended(number);
-	}
-}
-
-uint32_t rotate_right_extended(uint32_t number) {
-	flags.C = (number & 0x00000001);
-	number >> 1;
-	if (flags.C) {
-		number = number | 0x80000000;
+uint32_t rotate_right(uint32_t number, unsigned int rotate_counter, uint32_t set_flags) {
+	unsigned int tmp_carry;
+	uint32_t result;
+	
+	if (rotate_counter == 32) {
+		tmp_carry = number >> 31;
+		result = number;
 	}
 	else {
-		number = number & 0x8FFFFFFF;
+		rotate_counter = rotate_counter % 32;
+		if (rotate_counter >= 1)
+		{
+			uint32_t y = (number >> rotate_counter) & ~(-1 << (32 - rotate_counter));
+			uint32_t z = number << (32 - rotate_counter);
+			result = y | z;
+			tmp_carry = ((number >> (rotate_counter - 1)) & 0x00000001);
+		}
+		else
+		{
+			//EXTENDED ROTATE
+			result = rotate_right_extended(number, set_flags);
+		}
 	}
-	return number;
+
+	if (set_flags)
+		flags.C = tmp_carry;
+
+	return result;
 }
 
-/**
-uint32_t immediate(DATA_PROCESSING inst) {
+uint32_t rotate_right_extended(uint32_t number, uint32_t set_flags) {
+	unsigned int tmp_carry;
+	uint32_t result;
+
+	tmp_carry = (number & 0x00000001);
+	result = number >> 1;
+	if (tmp_carry) {
+		result = result | 0x80000000;
+	}
+	else {
+		result = result & 0x8FFFFFFF;
+	}
+
+	if (set_flags)
+		flags.C = tmp_carry;
+
+	return result;
+}
+
+uint32_t immediate(const uint32_t instruction) {
+	DATA_PROCESSING inst;
+	inst.op = instruction;
 	/**
 	if Immediate bit 1
 	opr2 is immidiate
 	else
 	opr2 is register
-	
-	
-	int immediate_bit = (inst.op & 0x02000000);
-	if (immediate_bit == 1) {
-		int rotate = (inst.operand2 >> 8);
-		int immediate_value = (inst.operand2 & 0x0000007F);
-		uint32_t y = (immediate_value >> (rotate * 2)) & ~(-1 << (32 - (rotate * 2)));
-		uint32_t z = immediate_value << (32 - (rotate * 2));
-		uint32_t  g = y | z;
-		return g;
+	*/
+	if (inst._I == 1) {
+		int rotate = (inst.operand2 >> 8) * 2;
+		int immediate_value = (inst.operand2 & 0x000000FF);
+		uint32_t y = (immediate_value >> (rotate)) & ~(-1 << (32 - (rotate)));
+		uint32_t z = immediate_value << (32 - (rotate));
+		uint32_t  result = y | z;
+		return result;
 	}
-	else if (immediate_bit == 0) {
-		switch (inst.)
+	else {
+		int isRegister = inst.operand2 >> 4;
+		int shift_type = -1;
+		uint32_t shift_count = -1;
+		uint32_t number = 0;
+		shift_type = (inst.operand2 >> 5) & 0x00000003;
+		
+		if (isRegister) {
+			int Rs = inst.operand2 >> 8;
+			number = registers.registers[Rs] & 0x000000FF;
+		}
+		else {
+			number = inst.operand2 & 0x0000000F;
+			shift_count = (inst.operand2 >> 7);
+		}
+		switch (inst._I)
 		{
+		case 0:
+			logical_shift_left(number, shift_count, inst._S);
+			break;
+		case 1:
+			logical_shift_right(number, shift_count, inst._S);
+			break;
+		case 2:
+			arithmetic_shift_right(number, shift_count, inst._S);
+			break;
+		case 3:
+			rotate_right(number, shift_count, inst._S);
+			break;
 		default:
+			printf("Unexpected result in immediate function.");
 			break;
 		}
 	}
-	else {
-		printf("Unexpected case in immidiate function\n");
-	}
 };
-*/
-
-
 
 /**
 ARM INSTRUCTION SET
-
-void arm_and(unsigned int *bits) {
-	int operand1 = bit_to_value(bits, RN_START, RN_STOP);
-	int operand2 = immediate(bits);
-};
 */
+
+uint32_t arm_and(uint32_t operand1, uint32_t operand2) {
+	uint32_t result;
+	return (operand1 & operand2);
+};
+
 int main()
 {
 	/*binary_data = uint32_t (0x00E00000);
@@ -409,10 +501,9 @@ int main()
 	decode_opcode(bits);*/
 
 	int32_t a = 1;
-	int32_t result = rotate_right(a, 3);
+	int32_t result = rotate_right(a, 1, 0);
 	printf("%x\n", result);
 	printf("%u", flags.C);
-
 
 	while (1) {};
 	return 0;

@@ -1,6 +1,6 @@
 ﻿  Test1.cpp
-c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(340): warning C4552: '>>': işlecin etkisi yok; yan etkisi olan işleç bekleniyordu
-c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(188): warning C4715: 'decode_cond': tüm denetim yolları değer döndürmez
-c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(325): warning C4715: 'arithmetic_shift_right': tüm denetim yolları değer döndürmez
+c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(485): warning C4101: 'result': yerel değişken başvurusu kaldırıldı
+c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(206): warning C4715: 'decode_cond': tüm denetim yolları değer döndürmez
+c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(478): warning C4715: 'immediate': tüm denetim yolları değer döndürmez
   Test1.vcxproj -> C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\x64\Debug\Test1.exe
   Test1.vcxproj -> C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\x64\Debug\Test1.pdb (Partial PDB)
