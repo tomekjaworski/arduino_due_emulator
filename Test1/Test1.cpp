@@ -14,20 +14,20 @@ uint32_t binary_data;
 /**
 	FUNCTION PROTOTYPES
 */
-uint32_t immediate(const uint32_t);
-unsigned int decode_cond(uint32_t);
-void branch_exchange(const uint32_t);
-void branch_and_branch_with_link(const uint32_t);
-void decode_opcode(const uint32_t);
-uint32_t logical_shift_left(uint32_t, unsigned int, uint32_t);
-uint32_t logical_shift_right(uint32_t, unsigned int, uint32_t);
-int32_t arithmetic_shift_right(int32_t, unsigned int, uint32_t);
-uint32_t rotate_right(uint32_t, unsigned int, uint32_t);
-uint32_t rotate_right_extended(uint32_t, uint32_t);
-uint32_t immediate(const uint32_t);
+__forceinline uint32_t immediate(const uint32_t);
+__forceinline unsigned int decode_cond(uint32_t);
+__forceinline void branch_exchange(const uint32_t);
+__forceinline void branch_and_branch_with_link(const uint32_t);
+__forceinline void decode_opcode(const uint32_t);
+__forceinline uint32_t logical_shift_left(uint32_t, unsigned int, uint32_t);
+__forceinline uint32_t logical_shift_right(uint32_t, unsigned int, uint32_t);
+__forceinline int32_t arithmetic_shift_right(int32_t, unsigned int, uint32_t);
+__forceinline uint32_t rotate_right(uint32_t, unsigned int, uint32_t);
+__forceinline uint32_t rotate_right_extended(uint32_t, uint32_t);
+__forceinline uint32_t immediate(const uint32_t);
 
-uint32_t arm_and(uint32_t, uint32_t);
-
+__forceinline uint32_t arm_and(uint32_t, uint32_t);
+__forceinline uint32_t arm_add(uint32_t, uint32_t);
 
 /**
 31-28 Cond
@@ -456,23 +456,24 @@ uint32_t immediate(const uint32_t instruction) {
 			number = inst.operand2 & 0x0000000F;
 			shift_count = (inst.operand2 >> 7);
 		}
-		switch (inst._I)
+
+		switch (shift_type)
 		{
-		case 0:
-			logical_shift_left(number, shift_count, inst._S);
-			break;
-		case 1:
-			logical_shift_right(number, shift_count, inst._S);
-			break;
-		case 2:
-			arithmetic_shift_right(number, shift_count, inst._S);
-			break;
-		case 3:
-			rotate_right(number, shift_count, inst._S);
-			break;
-		default:
-			printf("Unexpected result in immediate function.");
-			break;
+			case 0:
+				logical_shift_left(number, shift_count, inst._S);
+				break;
+			case 1:
+				logical_shift_right(number, shift_count, inst._S);
+				break;
+			case 2:
+				arithmetic_shift_right(number, shift_count, inst._S);
+				break;
+			case 3:
+				rotate_right(number, shift_count, inst._S);
+				break;
+			default:
+				printf("Unexpected result in immediate function.");
+				break;
 		}
 	}
 };
@@ -483,8 +484,15 @@ ARM INSTRUCTION SET
 
 uint32_t arm_and(uint32_t operand1, uint32_t operand2) {
 	uint32_t result;
-	return (operand1 & operand2);
+	result = (operand1 & operand2);
+	return result;
 };
+
+uint32_t arm_add(uint32_t operand1, uint32_t operand2) {
+	uint32_t result;
+
+	return result;
+}
 
 int main()
 {
@@ -499,6 +507,8 @@ int main()
 
 	decode_cond(bits);
 	decode_opcode(bits);*/
+
+
 
 	int32_t a = 1;
 	int32_t result = rotate_right(a, 1, 0);
