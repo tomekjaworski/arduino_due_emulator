@@ -482,7 +482,7 @@ uint32_t immediate(const uint32_t instruction) {
 ARM INSTRUCTION SET
 */
 
-uint32_t arm_and(uint32_t operand1, uint32_t operand2) {
+uint32_t arm_and_or_tst(uint32_t operand1, uint32_t operand2) {
 	uint32_t result;
 	result = (operand1 & operand2);
 	return result;
@@ -494,24 +494,43 @@ uint32_t arm_add(uint32_t operand1, uint32_t operand2) {
 	return result;
 }
 
+uint32_t arm_eor(uint32_t operand1, uint32_t operand2) {
+	uint32_t result;
+	result = (operand1 & (~operand2)) | ((~operand1) & operand2);
+	return result;
+}
+
+uint32_t arm_bic_clear(uint32_t operand1, uint32_t operand2) {
+	uint32_t result;
+	result = (operand1 & (~operand2));
+	return result;
+}
+
+void arm_mov(uint32_t register_n, uint32_t operand2) {
+	registers.registers[register_n] = operand2;
+}
+
+uint32_t arm_mvn(uint32_t operand2) {
+	uint32_t result;
+	result = (0xFFFFFFFF & (~operand2)) | ((0x00000000) & operand2);
+	return result;
+}
+
+uint32_t arm_orr(uint32_t operand1, uint32_t operand2) {
+	uint32_t result;
+	result = operand1 | operand2;
+	return result;
+}
+
+uint32_t arm_teq(uint32_t operand1, uint32_t operand2, uint32_t instruction) {
+	uint32_t result;
+	return result;
+}
+
 int main()
 {
-	/*binary_data = uint32_t (0x00E00000);
-
-	unsigned int  bitswanted = 32;
-
-	unsigned int *bits = get_bits(binary_data, bitswanted);
-
-	printf("%u =", binary_data);
-	print_bits(bits, bitswanted);
-
-	decode_cond(bits);
-	decode_opcode(bits);*/
-
-
-
 	int32_t a = 1;
-	int32_t result = rotate_right(a, 1, 0);
+	int32_t result = logical_shift_left(a, 32, 1);
 	printf("%x\n", result);
 	printf("%u", flags.C);
 
