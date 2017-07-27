@@ -1,1 +1,3 @@
-﻿C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\mm_loader\mm_loader.vcxproj(182,5): error : This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is ..\packages\boost.1.64.0.0\build\native\boost.targets.
+﻿  stdafx.cpp
+  mm_loader.cpp
+LINK : fatal error LNK1104: 'C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\x64\Debug\TextLoader.lib' dosyası açılamıyor

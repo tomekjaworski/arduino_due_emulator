@@ -384,9 +384,9 @@ uint32_t rotate_right(uint32_t number, unsigned int rotate_counter, uint32_t set
 		result = number;
 	}
 	else {
-		rotate_counter = rotate_counter % 32;
 		if (rotate_counter >= 1)
 		{
+			rotate_counter = rotate_counter % 32;
 			uint32_t y = (number >> rotate_counter) & ~(-1 << (32 - rotate_counter));
 			uint32_t z = number << (32 - rotate_counter);
 			result = y | z;
@@ -529,10 +529,47 @@ uint32_t arm_teq(uint32_t operand1, uint32_t operand2, uint32_t instruction) {
 
 int main()
 {
-	int32_t a = 1;
-	int32_t result = logical_shift_left(a, 32, 1);
-	printf("%x\n", result);
+	flags.C = 5;
+	int32_t a = -0x00000001;
+	int32_t result1 = rotate_right(a, 1, 1);
+	printf("%x\n", result1);
 	printf("%u", flags.C);
+	printf("\n------\n");
+
+	flags.C = 5;
+	int32_t b = -0x10000000;
+	int32_t result2 = rotate_right(b, 1, 1);
+	printf("%x\n", result2);
+	printf("%u", flags.C);
+	printf("\n------\n");
+
+	flags.C = 5;
+	int32_t c = -0x10000000;
+	int32_t result3 = rotate_right(c, 33, 1);
+	printf("%x\n", result3);
+	printf("%u", flags.C);
+	printf("\n------\n");
+
+	flags.C = 5;
+	int32_t d = -0x00000001;
+	int32_t result4 = rotate_right(d, 33, 1);
+	printf("%x\n", result4);
+	printf("%u", flags.C);
+	printf("\n------\n");
+
+	flags.C = 5;
+	int32_t e = -0x10000000;
+	int32_t result5 = rotate_right(e, 32, 1);
+	printf("%x\n", result5);
+	printf("%u", flags.C);
+	printf("\n------\n");
+
+	flags.C = 5;
+	int32_t f = -0x00000001;
+	int32_t result6 = rotate_right(f, 32, 1);
+	printf("%x\n", result6);
+	printf("%u", flags.C);
+	printf("\n------\n");
 
 	while (1) {};
 	return 0;
