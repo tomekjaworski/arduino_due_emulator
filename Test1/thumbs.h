@@ -1,14 +1,15 @@
 /*Unions for bit field*/
 
-//union for move shifted register
-union {
-	uint16_t raw = 0;
-	uint16_t FAULT_QUEUE : 2;
-	uint16_t CT_PIN_POLARITY;
-	bits16<5, 6, 7, 8>    INT_PIN_POLARITY;
-	bits16<9>    INT_CT_MODE;
-	bits16<5, 6> OPCODE;
-	bits16<7>    RESOLUTION;
-} movs;
+#include <cstdint>
+
+static inline void read_16th_inst(uint16_t& p_addr, uint32_t* regs[], uint8_t flash[]);
+
+static inline void set_thumb_instruction(unsigned __int16* p_addr);
+
+void branch_inst(uint16_t* p_addr, uint32_t regs[], uint8_t flash[]);
+
+void set_thumb_instruction(uint16_t* p_addr, uint32_t regs[], uint8_t flash[]);
+
+static inline void read_32th_inst(uint32_t& p_addr, uint32_t* regs[], uint8_t flash[]);
 
 #pragma once
