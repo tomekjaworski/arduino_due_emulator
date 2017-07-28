@@ -510,11 +510,37 @@ int main()
 	decode_opcode(bits);*/
 
 
-
+	/*
 	int32_t a = 1;
 	int32_t result = rotate_right(a, 1, 0);
 	printf("%x\n", result);
 	printf("%u", flags.C);
+	*/
+
+	//This is the start point for test unit of thumb instruction
+	/*registers initialization*/
+	registers.registers[0] = 0x0;
+	registers.registers[1] = 0x1;
+	registers.registers[2] = 0x2;
+	registers.registers[3] = 0x4;
+	registers.registers[4] = 0x8;
+	registers.registers[5] = 0x10;
+	registers.registers[6] = 0x20;
+	registers.registers[7] = 0x1200;
+	registers.registers[8] = 0x80;
+	registers.registers[9] = 0x100;
+	registers.registers[10] = 0x200;
+	registers.registers[11] = 0x400;
+	registers.registers[12] = 0x800;
+	registers.registers[13] = 0x1000;
+	registers.registers[14] = 0x2000;
+	registers.registers[15] = 0x4000;
+
+	/*test for thumb instructions*/
+	uint16_t pg_code = 0b0001110010111010;
+	uint8_t flash[512 * 1024] = {};
+	set_thumb_instruction(pg_code, registers.registers, flash);
+	//This is the end of test unit of thumb instruction
 
 	while (1) {};
 	return 0;
