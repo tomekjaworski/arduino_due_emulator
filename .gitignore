@@ -1,6 +1,10 @@
 /.vs
 /Debug
 /Release
+/x64
+/Test1/x64
+/MemoryMap/x64
+/mm_loader/x64
 packages/
 
 # Prerequisites
