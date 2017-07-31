@@ -1,4 +1,0 @@
-﻿  stdafx.cpp
-  dllmain.cpp
-  TextLoader.cpp
-c1xx : fatal error C1083: kaynak dosyası açılamıyor: 'TextLoader.cpp': No such file or directory

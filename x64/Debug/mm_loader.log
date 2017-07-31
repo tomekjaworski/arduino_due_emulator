@@ -1,3 +1,0 @@
-﻿  stdafx.cpp
-  mm_loader.cpp
-LINK : fatal error LNK1104: 'C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\x64\Debug\TextLoader.lib' dosyası açılamıyor
