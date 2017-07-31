@@ -1,4 +1,0 @@
-﻿  Test1.cpp
-c:\users\cagatay\downloads\yeni klasör\arduino_due_emulator-master\test1\test1.cpp(527): warning C4700: başlatılmamış yerel değişken 'result' kullanıldı
-  Test1.vcxproj -> C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\x64\Debug\Test1.exe
-  Test1.vcxproj -> C:\Users\cagatay\Downloads\Yeni klasör\arduino_due_emulator-master\x64\Debug\Test1.pdb (Partial PDB)
