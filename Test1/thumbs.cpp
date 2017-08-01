@@ -221,6 +221,12 @@ union {
 	};
 } lbr_wl;
 
+void set_conditon_flags(uint32_t) {
+	/*This function is for setting condition flag against the result of thumb functions*/
+
+	return;
+}
+
 
 /*This function is under reconstruction*/
 /*This function is for reading 16bit thumb instructions
@@ -231,7 +237,7 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 
 	switch ((p_addr & 0xF800) >> 11) { //to decide which opcode this function uses first 5 bits
 
-	/*Move shifted register instructions family*/
+	/*Format1: Move shifted register instructions family*/
 	case 0b00000: //MOVS Rd, Rs, LSL #Offset5
 	{
 		uint16_t Rd = p_addr & 0x0007;
@@ -281,7 +287,7 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 		#endif //_DEBUG
 		break;
 	}
-	/*Add, Substract instructions family*/
+	/*Format2: Add, Substract instructions family*/
 	case 0b00011:
 	{
 		int32_t Rd = (p_addr & 0x0007);
@@ -320,7 +326,7 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 		break;
 	}
 
-	/*move, compare, add, substract immediate family*/
+	/*Format3: move, compare, add, substract immediate family*/
 	case 0b00100: //MOVS Rd, #Offset8
 		regs[(p_addr & 0b0000011100000000) >> 8] = (p_addr & 0x00FF);
 		break;
@@ -335,9 +341,10 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 	case 0b00111: //SUBS Rd, Rd, #Offset8
 		regs[(p_addr & 0b0000011100000000) >> 8] -= (p_addr & 0x00FF);
 		break;
+	/*ALU operations & branch*/
 	case 0b01000:
 		if ((p_addr & 0b00000100000000000) != 0b0) {
-			/*ALU operations*/
+			/*Format4: ALU operations*/
 			{
 				uint8_t Rd = (p_addr & 0b111);
 				uint8_t Rs = (p_addr & 0b111000) >> 3;
