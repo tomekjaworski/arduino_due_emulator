@@ -27,6 +27,7 @@ int32_t IntelHexParser::Load(IMemoryLoaderConnector & connector)
 
 	int row_num = 0;
 	uint32_t address_high = 0;
+	uint32_t segment = 0;
 	int bytes_read = 0;
 
 	try {
@@ -77,6 +78,16 @@ int32_t IntelHexParser::Load(IMemoryLoaderConnector & connector)
 			if (record_type == 1)
 				break;
 
+			// segment offset? Typical for x86 real mode
+			if (record_type == 2)
+			{
+				if (byte_count != 2)
+					throw new IntelHexParserException("Byte count expected to be 2 (x16 segment)");
+
+				segment = (uint32_t)data[5] | (uint32_t)data[4] << 8;
+				continue;
+			}
+
 			// high word of an address
 			if (record_type == 4)
 			{
@@ -91,6 +102,7 @@ int32_t IntelHexParser::Load(IMemoryLoaderConnector & connector)
 			if (record_type == 0)
 			{
 				uint32_t addr = address_high | address_low;
+				addr += segment << 4;
 				for (int i = 0; i < byte_count; i++)
 				{
 					if (!connector.CanWrite(addr))
@@ -102,13 +114,22 @@ int32_t IntelHexParser::Load(IMemoryLoaderConnector & connector)
 				continue;
 			}
 
-			// entry point
+			// entry point in line space
 			if (record_type == 5)
 			{
 				// for future use
 				uint32_t ep_addr = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
 				continue;
 			}
+
+			// entry point in line space
+			if (record_type == 3)
+			{
+				// for future use
+				uint32_t ep_addr = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
+				continue;
+			}
+
 
 			throw IntelHexParserException(b::str(b::format("Unknown record type: %02x") % record_type));
 
