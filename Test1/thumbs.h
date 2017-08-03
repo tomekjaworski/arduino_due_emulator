@@ -2,6 +2,12 @@
 
 #include <cstdint>
 
+const uint32_t Cycles = {
+	//
+	//
+	//
+};
+
 inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]);
 
 inline void branch_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]);

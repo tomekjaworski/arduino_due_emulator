@@ -22,6 +22,7 @@ typedef struct {
 
 	//SPECIAL PURPOSE REGISTER
 	//13 SP Stack pointer
+	/*TODO: we have to devide SP to PSP, MSP*/
 	//14 LR Link Register
 	//15 PC Program Counter
 	uint32_t registers[16] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };

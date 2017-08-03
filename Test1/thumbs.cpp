@@ -222,7 +222,7 @@ union {
 } lbr_wl;
 
 void set_conditon_flags(uint32_t) {
-	/*This function is for setting condition flag against the result of thumb functions*/
+	/*This function is for setting condition flags against the result of thumb functions*/
 
 	return;
 }
@@ -232,7 +232,7 @@ void set_conditon_flags(uint32_t) {
 /*This function is for reading 16bit thumb instructions
   from binary codes.
   1. read first 5 bit
-  2. decide which function is */
+  2. decide which function is to be executed*/
 inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 
 	switch ((p_addr & 0xF800) >> 11) { //to decide which opcode this function uses first 5 bits
@@ -332,7 +332,7 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 		break;
 	case 0b00101: //CMP Rd, #Offset8
 		if (regs[(p_addr & 0b0000011100000000) >> 8] - (p_addr & 0x00FF) > 0) {
-			/*TODO: */
+			/*TODO: implement setting condition flags*/
 		}
 		break;
 	case 0b00110: //ADD Rd, Rd, #Offset8
@@ -465,10 +465,10 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 
 
 ////function for 
-//void read_16th_inst(uint16_t* p_addr, uint32_t regs[], uint8_t flash[]) {
-//	
-//	return;
-//}
+inline void read_16th_inst(uint16_t* p_addr, uint32_t regs[], uint8_t flash[]) {
+	
+	return;
+}
 
 inline void branch_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 	return;
@@ -484,16 +484,18 @@ void set_thumb_instruction(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 
 	if ((p_addr & 0xe0) != 0xe0) { //if they are 16 bit operations
 		read_16th_inst(p_addr, regs, flash);
-#ifdef _DEBUG
+		#ifdef _DEBUG
 		printf("16bit thumb instruction executed.\n");
-#endif //_DEBUG
+		#endif //_DEBUG
 	}
 	else if ((p_addr & 0x18) == 0x18) {
 		branch_inst(p_addr, regs, flash);
 	}
 	else { //if they are 32 bit operations
 		read_32th_inst((uint32_t)p_addr, regs, flash);
-
+		#ifdef _DEBUG
+		printf("32bit thumb instruction executed.\n");
+		#endif //_DEBUG
 	}
 
 	return;

@@ -604,7 +604,26 @@ int main()
 	set_thumb_instruction(pg_code, registers.registers, flash);
 	//This is the end of test unit of thumb instruction
 
-	while (1) {};
+	
+	/*TODO: write here the codes to load memory map*/
+
+	/*setting initial values for SystemTimer & PC */
+	int SystemTimer = 0;
+	registers.registers[15] = flash[0x00000004]; //PC
+
+	/*set initial values for other registers*/
+	registers.registers[13] = flash[0x00000000]; //SP
+	registers.registers[14] = 0xFFFFFFFF; //LR
+	registers.PSR = 0x01000000;
+	registers.PRIMASK = 0x0;
+	registers.FAULTMASK = 0x0;
+	registers.BASEPRI = 0x0;
+	registers.CONTROL = 0x0;
+
+	for (;;) {//main loop for one instruction cycle
+		//TODO: 
+
+	}
 	return 0;
 }
 
