@@ -274,9 +274,12 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 		if ((regs[Rd] & 0x80000000) == 0x80000000) { //if the top bit is 1
 			regs[Rd] = ((regs[Rs] >> Offset5) | (~0 << (32-Offset5)));
 			
-			//for (int i = 0; i < Offset5; i++) { //This may be also OK.
-			//	regs[Rd] = (int32_t)regs[Rs];
+			/*This may be also OK.*/
+			//int tmp = (int)regs[Rs];
+			//for (int i = 0; i < Offset5; i++) {
+			//	tmp = tmp / 2;
 			//}
+			//regs[Rd] = (int32_t)tmp;
 		}
 		else { // if the top bit is 0
 			regs[Rd] = (regs[Rs] >> Offset5); //this is the same as logical right shift bit
@@ -453,8 +456,9 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 		regs[Rd] = flash[regs[15] + Word8]; //TODO: implement reader from address
 		break;
 	}
-	case 0b01010: //
+	case 0b01010: /*TODO: implement this instruction*/
 		break;
+	/*TODO: implement other instructions*/
 	default: // For error message
 		fprintf(stderr, "No instruction detected!\n");
 		break;
@@ -464,7 +468,7 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 }
 
 
-////function for 
+//function for 
 inline void read_16th_inst(uint16_t* p_addr, uint32_t regs[], uint8_t flash[]) {
 	
 	return;

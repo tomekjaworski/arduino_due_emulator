@@ -621,8 +621,9 @@ int main()
 	registers.CONTROL = 0x0;
 
 	for (;;) {//main loop for one instruction cycle
-		//TODO: 
-
+		//TODO: decide this is in arm or thumb instruction mode
+		//TODO: checking binary codes for which instructions will be executed
+		//TODO: execute the instruction
 	}
 	return 0;
 }
