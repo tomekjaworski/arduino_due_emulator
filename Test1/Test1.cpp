@@ -608,7 +608,7 @@ int main()
 	/*TODO: write here the codes to load memory map*/
 
 	/*setting initial values for SystemTimer & PC */
-	int SystemTimer = 0;
+	int SystemTimer = 0x00FFFFFF; //TODO: we have to check the interruption period
 	registers.registers[15] = flash[0x00000004]; //PC
 
 	/*set initial values for other registers*/
@@ -621,9 +621,11 @@ int main()
 	registers.CONTROL = 0x0;
 
 	for (;;) {//main loop for one instruction cycle
-		//TODO: decide this is in arm or thumb instruction mode
-		//TODO: checking binary codes for which instructions will be executed
-		//TODO: execute the instruction
+		//TODO: Detect in whether arm or thumb instruction mode at this point
+		//TODO: Check binary codes for which instructions should be executed
+		//TODO: Execute the instruction
+		//TODO: Change the value of cycle counter
+		//TODO: Check the interruption if the counter value is less than 0
 	}
 	return 0;
 }
