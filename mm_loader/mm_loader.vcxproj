@@ -154,6 +154,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="test_axf\test0_ok.axf" />
+    <None Include="test_hex\GccApplication2.hex" />
     <None Include="test_hex\test10_ok.hex" />
     <None Include="test_hex\test1_ok.hex" />
     <None Include="test_hex\test2_ok.hex" />

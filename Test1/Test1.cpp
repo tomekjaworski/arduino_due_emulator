@@ -1,4 +1,4 @@
-// ConsoleApplication1.cpp : Konsol uygulamasý için giriþ noktasýný tanýmlar.
+// Test1.cpp : Defines the entry point for the console application.
 //
 
 #include "stdafx.h"
@@ -7,7 +7,11 @@
 #include <cstdint>
 #include <map>
 #include "cpu.h"
+<<<<<<< HEAD
 #include "instructionMask.h"
+=======
+#include "thumbs.h"
+>>>>>>> cbfd93f68eb086582a5975d86c1322eaa49464ac
 
 CPSR flags;
 REGISTERS registers;
@@ -380,7 +384,7 @@ int32_t arithmetic_shift_right(int32_t number, unsigned int shift_count, uint32_
 uint32_t rotate_right(uint32_t number, unsigned int rotate_counter, uint32_t set_flags) {
 	unsigned int tmp_carry;
 	uint32_t result;
-	
+
 	if (rotate_counter == 32) {
 		tmp_carry = number >> 31;
 		result = number;
@@ -449,7 +453,7 @@ uint32_t immediate(const uint32_t instruction) {
 		uint32_t shift_count = -1;
 		uint32_t number = 0;
 		shift_type = (inst.operand2 >> 5) & 0x00000003;
-		
+
 		if (isRegister) {
 			int Rs = inst.operand2 >> 8;
 			number = registers.registers[Rs] & 0x000000FF;
@@ -461,21 +465,21 @@ uint32_t immediate(const uint32_t instruction) {
 
 		switch (shift_type)
 		{
-			case 0:
-				logical_shift_left(number, shift_count, inst._S);
-				break;
-			case 1:
-				logical_shift_right(number, shift_count, inst._S);
-				break;
-			case 2:
-				arithmetic_shift_right(number, shift_count, inst._S);
-				break;
-			case 3:
-				rotate_right(number, shift_count, inst._S);
-				break;
-			default:
-				printf("Unexpected result in immediate function.");
-				break;
+		case 0:
+			logical_shift_left(number, shift_count, inst._S);
+			break;
+		case 1:
+			logical_shift_right(number, shift_count, inst._S);
+			break;
+		case 2:
+			arithmetic_shift_right(number, shift_count, inst._S);
+			break;
+		case 3:
+			rotate_right(number, shift_count, inst._S);
+			break;
+		default:
+			printf("Unexpected result in immediate function.");
+			break;
 		}
 	}
 };
@@ -531,12 +535,112 @@ uint32_t arm_teq(uint32_t operand1, uint32_t operand2, uint32_t instruction) {
 
 int main()
 {
+<<<<<<< HEAD
 	
 	for (int i = 0; i < 15; i++) {
 		printf("%d, %x, %x\n", masks[i].type, masks[i].mask, masks[i].value);
 	}
 	
 	while (1) {};
+=======
+	flags.C = 5;
+	int32_t a = -0x00000001;
+	int32_t result1 = rotate_right(a, 1, 1);
+	printf("%x\n", result1);
+	printf("%u", flags.C);
+	printf("\n------\n");
+
+	/*
+	int32_t a = 1;
+	int32_t result = rotate_right(a, 1, 0);
+	printf("%x\n", result);
+	printf("%u", flags.C);
+	*/
+
+	flags.C = 5;
+	int32_t b = -0x10000000;
+	int32_t result2 = rotate_right(b, 1, 1);
+	printf("%x\n", result2);
+	printf("%u", flags.C);
+	printf("\n------\n");
+
+	flags.C = 5;
+	int32_t c = -0x10000000;
+	int32_t result3 = rotate_right(c, 33, 1);
+	printf("%x\n", result3);
+	printf("%u", flags.C);
+	printf("\n------\n");
+
+	flags.C = 5;
+	int32_t d = -0x00000001;
+	int32_t result4 = rotate_right(d, 33, 1);
+	printf("%x\n", result4);
+	printf("%u", flags.C);
+	printf("\n------\n");
+
+	flags.C = 5;
+	int32_t e = -0x10000000;
+	int32_t result5 = rotate_right(e, 32, 1);
+	printf("%x\n", result5);
+	printf("%u", flags.C);
+	printf("\n------\n");
+
+	flags.C = 5;
+	int32_t f = -0x00000001;
+	int32_t result6 = rotate_right(f, 32, 1);
+	printf("%x\n", result6);
+	printf("%u", flags.C);
+	printf("\n------\n");
+
+	//This is the start point for test unit of thumb instruction
+	/*registers initialization*/
+	registers.registers[0] = 0x0;
+	registers.registers[1] = 0x1;
+	registers.registers[2] = 0x2;
+	registers.registers[3] = 0x4;
+	registers.registers[4] = 0x8;
+	registers.registers[5] = 0x10;
+	registers.registers[6] = 0x20;
+	registers.registers[7] = 0x1200;
+	registers.registers[8] = 0x80;
+	registers.registers[9] = 0x100;
+	registers.registers[10] = 0x200;
+	registers.registers[11] = 0x400;
+	registers.registers[12] = 0x800;
+	registers.registers[13] = 0x1000;
+	registers.registers[14] = 0x2000;
+	registers.registers[15] = 0x4000;
+
+	/*test for thumb instructions*/
+	uint16_t pg_code = 0b0001110010111010;
+	uint8_t flash[512 * 1024] = {};
+	set_thumb_instruction(pg_code, registers.registers, flash);
+	//This is the end of test unit of thumb instruction
+
+	
+	/*TODO: write here the codes to load memory map*/
+
+	/*setting initial values for SystemTimer & PC */
+	int SystemTimer = 0x00FFFFFF; //TODO: we have to check the interruption period
+	registers.registers[15] = flash[0x00000004]; //PC
+
+	/*set initial values for other registers*/
+	registers.registers[13] = flash[0x00000000]; //SP
+	registers.registers[14] = 0xFFFFFFFF; //LR
+	registers.PSR = 0x01000000;
+	registers.PRIMASK = 0x0;
+	registers.FAULTMASK = 0x0;
+	registers.BASEPRI = 0x0;
+	registers.CONTROL = 0x0;
+
+	for (;;) {//main loop for one instruction cycle
+		//TODO: Detect in whether arm or thumb instruction mode at this point
+		//TODO: Check binary codes for which instructions should be executed
+		//TODO: Execute the instruction
+		//TODO: Change the value of cycle counter
+		//TODO: Check the interruption if the counter value is less than 0
+	}
+>>>>>>> cbfd93f68eb086582a5975d86c1322eaa49464ac
 	return 0;
 }
 

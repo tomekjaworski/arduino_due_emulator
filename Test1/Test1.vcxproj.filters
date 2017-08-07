@@ -27,10 +27,14 @@
     <ClInclude Include="cpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="instructionMask.h">
+=======
+    <ClInclude Include="thumbs.h">
+>>>>>>> cbfd93f68eb086582a5975d86c1322eaa49464ac
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -39,6 +43,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Test1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thumbs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -390,9 +390,9 @@ Image Symbol Table
     __use_no_semihosting_swi                 0x00000215   Thumb Code     2  use_no_semi.o(.text)
     __semihosting_library_function           0x00000217   Thumb Code     0  indicate_semi.o(.text)
     SystemInit                               0x00000219   Thumb Code    14  system_armcm3.o(i.SystemInit)
-    main                                     0x00000239   Thumb Code    16  main.o(i.main)
-    Region$$Table$$Base                      0x00000248   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x00000268   Number         0  anon$$obj.o(Region$$Table)
+    main                                     0x00000239   Thumb Code    40  main.o(i.main)
+    Region$$Table$$Base                      0x00000260   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x00000280   Number         0  anon$$obj.o(Region$$Table)
     SystemCoreClock                          0x20000000   Data           4  system_armcm3.o(.data)
     __libspace_start                         0x20000004   Data          96  libspace.o(.bss)
     __temporary_stack_top$libspace           0x20000064   Data           0  libspace.o(.bss)
@@ -405,9 +405,9 @@ Memory Map of the image
 
   Image Entry point : 0x0000015d
 
-  Load Region LR_1 (Base: 0x00000000, Size: 0x0000026c, Max: 0xffffffff, ABSOLUTE)
+  Load Region LR_1 (Base: 0x00000000, Size: 0x00000284, Max: 0xffffffff, ABSOLUTE)
 
-    Execution Region ER_RO (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x00000268, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RO (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x00000280, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -470,23 +470,23 @@ Memory Map of the image
     0x00000216   0x00000216   0x00000000   Code   RO          198    .text               c_w.l(indicate_semi.o)
     0x00000216   0x00000216   0x00000002   PAD
     0x00000218   0x00000218   0x00000020   Code   RO           59    i.SystemInit        system_armcm3.o
-    0x00000238   0x00000238   0x00000010   Code   RO            4    i.main              main.o
-    0x00000248   0x00000248   0x00000020   Data   RO          251    Region$$Table       anon$$obj.o
+    0x00000238   0x00000238   0x00000028   Code   RO            4    i.main              main.o
+    0x00000260   0x00000260   0x00000020   Data   RO          251    Region$$Table       anon$$obj.o
 
 
-    Execution Region ER_RW (Exec base: 0x20000000, Load base: 0x00000268, Size: 0x00000004, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RW (Exec base: 0x20000000, Load base: 0x00000280, Size: 0x00000004, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x00000268   0x00000004   Data   RW           60    .data               system_armcm3.o
+    0x20000000   0x00000280   0x00000004   Data   RW           60    .data               system_armcm3.o
 
 
-    Execution Region ER_ZI (Exec base: 0x20000004, Load base: 0x0000026c, Size: 0x00001064, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_ZI (Exec base: 0x20000004, Load base: 0x00000284, Size: 0x00001064, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x20000004        -       0x00000060   Zero   RW          125    .bss                c_w.l(libspace.o)
-    0x20000064   0x0000026c   0x00000004   PAD
+    0x20000064   0x00000284   0x00000004   PAD
     0x20000068        -       0x00000c00   Zero   RW           49    HEAP                startup_armcm3.o
     0x20000c68        -       0x00000400   Zero   RW           48    STACK               startup_armcm3.o
 
@@ -498,12 +498,12 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-        16          0          0          0          0       5031   main.o
-        64         26        192          0       4096        872   startup_armcm3.o
-        32         18          0          4          0        735   system_armcm3.o
+        40          0          0          0          0       5031   main.o
+        64         26        192          0       4096        828   startup_armcm3.o
+        32         18          0          4          0        643   system_armcm3.o
 
     ----------------------------------------------------------------------
-       112         44        224          4       4096       6638   Object Totals
+       136         44        224          4       4096       6502   Object Totals
          0          0         32          0          0          0   (incl. Generated)
          0          0          0          0          0          0   (incl. Padding)
 
@@ -552,15 +552,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-       392         60        224          4       4196       7062   Grand Totals
-       392         60        224          4       4196       7062   ELF Image Totals
-       392         60        224          4          0          0   ROM Totals
+       416         60        224          4       4196       6926   Grand Totals
+       416         60        224          4       4196       6926   ELF Image Totals
+       416         60        224          4          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                  616 (   0.60kB)
+    Total RO  Size (Code + RO Data)                  640 (   0.63kB)
     Total RW  Size (RW Data + ZI Data)              4200 (   4.10kB)
-    Total ROM Size (Code + RO Data + RW Data)        620 (   0.61kB)
+    Total ROM Size (Code + RO Data + RW Data)        644 (   0.63kB)
 
 ==============================================================================
 
