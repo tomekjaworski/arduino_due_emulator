@@ -5,6 +5,7 @@
 /Test1/x64
 /MemoryMap/x64
 /mm_loader/x64
+/TextLoader/x64
 packages/
 
 # Prerequisites
