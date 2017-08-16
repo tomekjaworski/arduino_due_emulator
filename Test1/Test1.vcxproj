@@ -142,11 +142,8 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="cpu.h" />
-<<<<<<< HEAD
     <ClInclude Include="test.h" />
-=======
     <ClInclude Include="thumbs.h" />
->>>>>>> cbfd93f68eb086582a5975d86c1322eaa49464ac
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
