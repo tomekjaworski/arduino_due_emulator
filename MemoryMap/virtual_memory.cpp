@@ -16,7 +16,7 @@
 #define FLASH_1_START		0x000C0000
 #define	FLASH_1_END			0x000FFFFF
 #define	ROM_START			0x00100000
-#define ROM_STOP			0x001FFFFF
+#define ROM_END			0x001FFFFF
 
 /** SUBSECTIONS OF SRAM SECTION*/
 #define SRAM_0_START		0x20000000
@@ -24,9 +24,16 @@
 #define	SRAM_1_START		0x20080000
 #define	SRAM_1_END			0x200FFFFF
 
+/**
+	TODO
+	------------
+	1) Check bitbandings.
+*/
+
+
 bool VirtualMemoryMap::CanRead(uint32_t address) const
 {
-	return false;
+	return true;
 }
 
 bool VirtualMemoryMap::CanWrite(uint32_t address) const
@@ -36,11 +43,52 @@ bool VirtualMemoryMap::CanWrite(uint32_t address) const
 
 bool VirtualMemoryMap::Read(uint32_t address, uint32_t & value)
 {
+	if (CanRead(address)) {
+		if (address >= FLASH_0_START && address <= FLASH_0_END) {
+			value = flash_0[address - FLASH_0_START];
+		}
+
+		if (address >= FLASH_1_START && address <= FLASH_1_END) {
+			value = flash_1[address - FLASH_1_START];
+		}
+
+		if (address >= ROM_START && address <= ROM_END) {
+			value = rom[address - ROM_START];
+		}
+
+		if (address >= SRAM_0_START && address <= SRAM_0_END) {
+			value = sram_0[address - SRAM_0_START];
+		}
+
+		if (address >= SRAM_1_START && address <= SRAM_1_END) {
+			value = sram_1[address - SRAM_1_START];
+		}
+	}
 	return false;
 }
 
 bool VirtualMemoryMap::Write(uint32_t address, uint32_t value)
 {
-	 
+	if (CanWrite(address)) {
+		if (address >= FLASH_0_START && address <= FLASH_0_END) {
+			flash_0[address - FLASH_0_START] = value;
+		}
+
+		if (address >= FLASH_1_START && address <= FLASH_1_END) {
+			flash_1[address - FLASH_1_START] = value;
+		}
+
+		if (address >= ROM_START && address <= ROM_END) {
+			rom[address - ROM_START] = value;
+		}
+
+		if (address >= SRAM_0_START && address <= SRAM_0_END) {
+			sram_0[address - SRAM_0_START] = value;
+		}
+
+		if (address >= SRAM_1_START && address <= SRAM_1_END) {
+			sram_1[address - SRAM_1_START] = value;
+		}
+	}
 	return true;
 }

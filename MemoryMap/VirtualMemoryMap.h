@@ -11,7 +11,11 @@
 class VirtualMemoryMap : public IMemoryLoaderConnector
 {
 private:
-	std::unordered_map<uint32_t, std::unique_ptr<uint8_t[]>> pages;
+	uint32_t flash_0[256 * 1024 / 4];
+	uint32_t flash_1[256 * 1024 / 4];
+	uint32_t rom	[128 * 1024 / 4];
+	uint32_t sram_0	[64  * 1024 / 4];
+	uint32_t sram_1 [64 * 1024 / 4];
 
 public:
 
@@ -21,9 +25,9 @@ public:
 
 	virtual bool CanWrite(uint32_t address) const override;
 
-	virtual bool Read(uint32_t address, uint8_t & value) override;
+	virtual bool Read(uint32_t address, uint32_t & value) override;
 
-	virtual bool Write(uint32_t address, uint8_t value) override;
+	virtual bool Write(uint32_t address, uint32_t value) override;
 
 };
 
