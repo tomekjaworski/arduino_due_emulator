@@ -1,14 +1,11 @@
 /.vs/
 /Debug/
 /Release
-<<<<<<< HEAD
 /x64
 /Test1/x64
 /MemoryMap/x64
 /mm_loader/x64
 /TextLoader/x64
-=======
->>>>>>> cbfd93f68eb086582a5975d86c1322eaa49464ac
 packages/
 x64/
 
