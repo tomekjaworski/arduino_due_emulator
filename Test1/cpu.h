@@ -25,7 +25,7 @@ typedef struct {
 	/*TODO: we have to devide SP to PSP, MSP*/
 	//14 LR Link Register
 	//15 PC Program Counter
-	uint32_t registers[16] = {};
+	uint32_t general[16] = {};
 
 	//SPECIAL REGISTERS
 	uint32_t PSR = 0, PRIMASK = 0, FAULTMASK = 0, BASEPRI = 0, CONTROL = 0;
@@ -38,4 +38,8 @@ typedef struct {
 	unsigned int V = 0;
 }CPSR;
 
+typedef struct {
+	REGISTERS registers;
+	CPSR flags;
+}CPU;
 #pragma once
