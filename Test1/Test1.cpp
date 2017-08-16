@@ -7,11 +7,8 @@
 #include <cstdint>
 #include <map>
 #include "cpu.h"
-<<<<<<< HEAD
 #include "instructionMask.h"
-=======
 #include "thumbs.h"
->>>>>>> cbfd93f68eb086582a5975d86c1322eaa49464ac
 
 CPSR flags;
 REGISTERS registers;
@@ -535,14 +532,14 @@ uint32_t arm_teq(uint32_t operand1, uint32_t operand2, uint32_t instruction) {
 
 int main()
 {
-<<<<<<< HEAD
+
 	
 	for (int i = 0; i < 15; i++) {
 		printf("%d, %x, %x\n", masks[i].type, masks[i].mask, masks[i].value);
 	}
 	
 	while (1) {};
-=======
+
 	flags.C = 5;
 	int32_t a = -0x00000001;
 	int32_t result1 = rotate_right(a, 1, 1);
@@ -640,7 +637,6 @@ int main()
 		//TODO: Change the value of cycle counter
 		//TODO: Check the interruption if the counter value is less than 0
 	}
->>>>>>> cbfd93f68eb086582a5975d86c1322eaa49464ac
 	return 0;
 }
 

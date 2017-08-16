@@ -27,14 +27,13 @@
     <ClInclude Include="cpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-<<<<<<< HEAD
     <ClInclude Include="test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="instructionMask.h">
-=======
+	  <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="thumbs.h">
->>>>>>> cbfd93f68eb086582a5975d86c1322eaa49464ac
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
