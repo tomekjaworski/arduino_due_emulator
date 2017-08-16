@@ -120,6 +120,12 @@ static_assert(sizeof(MULT1) == 4, "sizeof(MULTI1) == 4");
 	USEFUL FUNCTIONS FOR PROCESSING INSTRUCTION
 */
 
+/**
+	This function uses 4 bit condition value for checking either this condition true or false.
+
+	@param 4 bit condition value
+	@return If the conditions are met then it returns true, otherwise it returns false.
+*/
 unsigned int decode_cond(uint32_t cond) {
 	switch (cond) {
 	case 0:
@@ -248,6 +254,13 @@ void branch_and_branch_with_link(const uint32_t instruction) {
 	}
 }
 
+/**
+	This function uses 32 bit instruction value for deciding to which operations going to be run.
+	After that chooise, it runs that operation.
+
+	@param 32 bit instruction value
+	@return Nothing
+*/
 void decode_opcode(const uint32_t instruction) {
 	DATA_PROCESSING inst;
 	inst.op = instruction;
@@ -427,9 +440,16 @@ uint32_t rotate_right_extended(uint32_t number, uint32_t set_flags) {
 	return result;
 }
 
+/**
+	This function uses 32 bit instruction value to perform some shifting operations according to operand 2 type.
+
+	@param 32 bit instruction value
+	@return result of operations
+*/
 uint32_t immediate(const uint32_t instruction) {
 	DATA_PROCESSING inst;
 	inst.op = instruction;
+	uint32_t result = 0;
 	/**
 	if Immediate bit 1
 	opr2 is immidiate
@@ -441,8 +461,7 @@ uint32_t immediate(const uint32_t instruction) {
 		int immediate_value = (inst.operand2 & 0x000000FF);
 		uint32_t y = (immediate_value >> (rotate)) & ~(-1 << (32 - (rotate)));
 		uint32_t z = immediate_value << (32 - (rotate));
-		uint32_t  result = y | z;
-		return result;
+		result = y | z;
 	}
 	else {
 		int isRegister = inst.operand2 >> 4;
@@ -463,22 +482,23 @@ uint32_t immediate(const uint32_t instruction) {
 		switch (shift_type)
 		{
 		case 0:
-			logical_shift_left(number, shift_count, inst._S);
+			result = logical_shift_left(number, shift_count, inst._S);
 			break;
 		case 1:
-			logical_shift_right(number, shift_count, inst._S);
+			result = logical_shift_right(number, shift_count, inst._S);
 			break;
 		case 2:
-			arithmetic_shift_right(number, shift_count, inst._S);
+			result = arithmetic_shift_right(number, shift_count, inst._S);
 			break;
 		case 3:
-			rotate_right(number, shift_count, inst._S);
+			result = rotate_right(number, shift_count, inst._S);
 			break;
 		default:
 			printf("Unexpected result in immediate function.");
 			break;
 		}
 	}
+	return result;
 };
 
 /**
@@ -549,6 +569,11 @@ void dump_registers() {
 	printf("%3x %7x %9x %7x %7x\n", cpu.registers.PSR, cpu.registers.PRIMASK, cpu.registers.FAULTMASK, cpu.registers.CONTROL, cpu.registers.BASEPRI);
 }
 
+/**
+	This function writes all flags and registers value to console screen.
+	dump_flags function used for printing flags' values
+	dump_registers function used for printing registers' values
+*/
 void dump_memory() {
 	printf("CPU STATE\n\n");
 	dump_flags();
@@ -557,7 +582,6 @@ void dump_memory() {
 
 int main()
 {
-	printf("\n\n");
 	dump_memory();
 
 	while (1) {};
