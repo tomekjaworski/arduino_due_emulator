@@ -34,13 +34,13 @@ bool VirtualMemoryMap::CanWrite(uint32_t address) const
 	return true;
 }
 
-bool VirtualMemoryMap::Read(uint32_t address, uint8_t & value)
+bool VirtualMemoryMap::Read(uint32_t address, uint32_t & value)
 {
 	return false;
 }
 
-bool VirtualMemoryMap::Write(uint32_t address, uint8_t value)
+bool VirtualMemoryMap::Write(uint32_t address, uint32_t value)
 {
-	
+	 
 	return true;
 }
