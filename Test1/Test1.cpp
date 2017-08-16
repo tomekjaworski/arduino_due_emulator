@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include <stdio.h>
+#include <conio.h>
 #include <stdlib.h>
 #include <cstdint>
 #include <map>
@@ -10,8 +11,7 @@
 #include "instructionMask.h"
 #include "thumbs.h"
 
-CPSR flags;
-REGISTERS registers;
+CPU cpu;
 uint32_t binary_data;
 
 /**
@@ -124,47 +124,47 @@ unsigned int decode_cond(uint32_t cond) {
 	switch (cond) {
 	case 0:
 		printf("Suffix: EQ\n");
-		return flags.Z;
+		return cpu.flags.Z;
 		break;
 	case 1:
 		printf("Suffix: NE\n");
-		return !flags.Z;
+		return !cpu.flags.Z;
 		break;
 	case 2:
 		printf("Suffix: CS\n");
-		return flags.C;
+		return cpu.flags.C;
 		break;
 	case 3:
 		printf("Suffix: CC\n");
-		return !flags.C;
+		return !cpu.flags.C;
 		break;
 	case 4:
 		printf("Suffix: MI\n");
-		return flags.N;
+		return cpu.flags.N;
 		break;
 	case 5:
 		printf("Suffix: PL\n");
-		return !flags.N;
+		return !cpu.flags.N;
 		break;
 	case 6:
 		printf("Suffix: VS\n");
-		return flags.V;
+		return cpu.flags.V;
 		break;
 	case 7:
 		printf("Suffix: VC\n");
-		return !flags.V;
+		return !cpu.flags.V;
 		break;
 	case 8:
 		printf("Suffix: HI\n");
-		return (flags.C && !flags.Z);
+		return (cpu.flags.C && !cpu.flags.Z);
 		break;
 	case 9:
 		printf("Suffix: LS\n");
-		return (!flags.C && flags.Z);
+		return (!cpu.flags.C && cpu.flags.Z);
 		break;
 	case 10:
 		printf("Suffix: GE\n");
-		if (flags.N == flags.V) {
+		if (cpu.flags.N == cpu.flags.V) {
 			return 1;
 		}
 		else {
@@ -173,7 +173,7 @@ unsigned int decode_cond(uint32_t cond) {
 		break;
 	case 11:
 		printf("Suffix: LT\n");
-		if (flags.N != flags.V) {
+		if (cpu.flags.N != cpu.flags.V) {
 			return 1;
 		}
 		else {
@@ -182,7 +182,7 @@ unsigned int decode_cond(uint32_t cond) {
 		break;
 	case 12:
 		printf("Suffix: GT\n");
-		if (flags.Z == 0 && (flags.N == flags.V)) {
+		if (cpu.flags.Z == 0 && (cpu.flags.N == cpu.flags.V)) {
 			return 1;
 		}
 		else {
@@ -191,7 +191,7 @@ unsigned int decode_cond(uint32_t cond) {
 		break;
 	case 13:
 		printf("Suffix: LE\n");
-		if (flags.Z == 1 && (flags.N != flags.V)) {
+		if (cpu.flags.Z == 1 && (cpu.flags.N != cpu.flags.V)) {
 			return 1;
 		}
 		else {
@@ -219,7 +219,7 @@ void branch_exchange(const uint32_t instruction) {
 	the instruction stream will be decoded as ARM or THUMB instructions.
 	*/
 
-	registers.registers[R15] = registers.registers[inst._Rn];
+	cpu.registers.general[R15] = cpu.registers.general[inst._Rn];
 
 	/**
 	pipeline flush and refill from the address specified by RN
@@ -240,11 +240,11 @@ void branch_and_branch_with_link(const uint32_t instruction) {
 	uint32_t link_bit = (inst.op & 0x01000000);
 	if (link_bit == 0) {
 		printf("Branch without link");
-		registers.registers[R15] += inst.offset;
+		cpu.registers.general[R15] += inst.offset;
 	}
 	else {
 		printf("Branch with link");
-		registers.registers[R14] = registers.registers[R15];
+		cpu.registers.general[R14] = cpu.registers.general[R15];
 	}
 }
 
@@ -259,12 +259,12 @@ void decode_opcode(const uint32_t instruction) {
 		case 0:
 			printf("Operation: AND\n");
 			result = arm_and(operand1, operand2);
-			registers.registers[inst._Rn] = result;
+			cpu.registers.general[inst._Rn] = result;
 			if (inst._S) {
 				if (!result) {
-					flags.Z = 1;
+					cpu.flags.Z = 1;
 				}
-				flags.N = result >> 31;
+				cpu.flags.N = result >> 31;
 			}
 			break;
 		case 1:
@@ -332,7 +332,7 @@ uint32_t logical_shift_left(uint32_t number, unsigned int shift_count,  uint32_t
 		result = 0;
 	}
 	if (set_flags)
-		flags.C = tmp_carry;
+		cpu.flags.C = tmp_carry;
 	return result;
 };
 
@@ -354,7 +354,7 @@ uint32_t logical_shift_right(uint32_t number, unsigned int shift_count,  uint32_
 	}
 
 	if (set_flags)
-		flags.C = tmp_carry;
+		cpu.flags.C = tmp_carry;
 
 	return result;
 };
@@ -373,7 +373,7 @@ int32_t arithmetic_shift_right(int32_t number, unsigned int shift_count, uint32_
 	}
 	
 	if (set_flags)
-		flags.C = tmp_carry;
+		cpu.flags.C = tmp_carry;
 
 	return result;
 };
@@ -403,7 +403,7 @@ uint32_t rotate_right(uint32_t number, unsigned int rotate_counter, uint32_t set
 	}
 
 	if (set_flags)
-		flags.C = tmp_carry;
+		cpu.flags.C = tmp_carry;
 
 	return result;
 }
@@ -422,7 +422,7 @@ uint32_t rotate_right_extended(uint32_t number, uint32_t set_flags) {
 	}
 
 	if (set_flags)
-		flags.C = tmp_carry;
+		cpu.flags.C = tmp_carry;
 
 	return result;
 }
@@ -453,7 +453,7 @@ uint32_t immediate(const uint32_t instruction) {
 
 		if (isRegister) {
 			int Rs = inst.operand2 >> 8;
-			number = registers.registers[Rs] & 0x000000FF;
+			number = cpu.registers.general[Rs] & 0x000000FF;
 		}
 		else {
 			number = inst.operand2 & 0x0000000F;
@@ -510,7 +510,7 @@ uint32_t arm_bic_clear(uint32_t operand1, uint32_t operand2) {
 }
 
 void arm_mov(uint32_t register_n, uint32_t operand2) {
-	registers.registers[register_n] = operand2;
+	cpu.registers.general[register_n] = operand2;
 }
 
 uint32_t arm_mvn(uint32_t operand2) {
@@ -530,113 +530,38 @@ uint32_t arm_teq(uint32_t operand1, uint32_t operand2, uint32_t instruction) {
 	return result;
 }
 
+void dump_flags() {
+	printf("FLAGS\n");
+	printf("*******************\n");
+	printf("C N V Z\n");
+	printf("%d %d %d %d\n\n", cpu.flags.C, cpu.flags.N, cpu.flags.V, cpu.flags.Z);
+};
+
+void dump_registers() {
+	
+	printf("REGISTERS\n");
+	printf("*******************\n");
+	for (int i = 0; i < 16; i++) {
+		printf("Register %d => %x\n", i, cpu.registers.general[i]);
+	}
+
+	printf("\nPSR PRIMASK FAULTMASK CONTROL BASEPRI\n");
+	printf("%3x %7x %9x %7x %7x\n", cpu.registers.PSR, cpu.registers.PRIMASK, cpu.registers.FAULTMASK, cpu.registers.CONTROL, cpu.registers.BASEPRI);
+}
+
+void dump_memory() {
+	printf("CPU STATE\n\n");
+	dump_flags();
+	dump_registers();
+};
+
 int main()
 {
+	printf("\n\n");
+	dump_memory();
 
-	
-	for (int i = 0; i < 15; i++) {
-		printf("%d, %x, %x\n", masks[i].type, masks[i].mask, masks[i].value);
-	}
-	
 	while (1) {};
-
-	flags.C = 5;
-	int32_t a = -0x00000001;
-	int32_t result1 = rotate_right(a, 1, 1);
-	printf("%x\n", result1);
-	printf("%u", flags.C);
-	printf("\n------\n");
-
-	/*
-	int32_t a = 1;
-	int32_t result = rotate_right(a, 1, 0);
-	printf("%x\n", result);
-	printf("%u", flags.C);
-	*/
-
-	flags.C = 5;
-	int32_t b = -0x10000000;
-	int32_t result2 = rotate_right(b, 1, 1);
-	printf("%x\n", result2);
-	printf("%u", flags.C);
-	printf("\n------\n");
-
-	flags.C = 5;
-	int32_t c = -0x10000000;
-	int32_t result3 = rotate_right(c, 33, 1);
-	printf("%x\n", result3);
-	printf("%u", flags.C);
-	printf("\n------\n");
-
-	flags.C = 5;
-	int32_t d = -0x00000001;
-	int32_t result4 = rotate_right(d, 33, 1);
-	printf("%x\n", result4);
-	printf("%u", flags.C);
-	printf("\n------\n");
-
-	flags.C = 5;
-	int32_t e = -0x10000000;
-	int32_t result5 = rotate_right(e, 32, 1);
-	printf("%x\n", result5);
-	printf("%u", flags.C);
-	printf("\n------\n");
-
-	flags.C = 5;
-	int32_t f = -0x00000001;
-	int32_t result6 = rotate_right(f, 32, 1);
-	printf("%x\n", result6);
-	printf("%u", flags.C);
-	printf("\n------\n");
-
-	//This is the start point for test unit of thumb instruction
-	/*registers initialization*/
-	registers.registers[0] = 0x0;
-	registers.registers[1] = 0x1;
-	registers.registers[2] = 0x2;
-	registers.registers[3] = 0x4;
-	registers.registers[4] = 0x8;
-	registers.registers[5] = 0x10;
-	registers.registers[6] = 0x20;
-	registers.registers[7] = 0x1200;
-	registers.registers[8] = 0x80;
-	registers.registers[9] = 0x100;
-	registers.registers[10] = 0x200;
-	registers.registers[11] = 0x400;
-	registers.registers[12] = 0x800;
-	registers.registers[13] = 0x1000;
-	registers.registers[14] = 0x2000;
-	registers.registers[15] = 0x4000;
-
-	/*test for thumb instructions*/
-	uint16_t pg_code = 0b0001110010111010;
-	uint8_t flash[512 * 1024] = {};
-	set_thumb_instruction(pg_code, registers.registers, flash);
-	//This is the end of test unit of thumb instruction
-
 	
-	/*TODO: write here the codes to load memory map*/
-
-	/*setting initial values for SystemTimer & PC */
-	int SystemTimer = 0x00FFFFFF; //TODO: we have to check the interruption period
-	registers.registers[15] = flash[0x00000004]; //PC
-
-	/*set initial values for other registers*/
-	registers.registers[13] = flash[0x00000000]; //SP
-	registers.registers[14] = 0xFFFFFFFF; //LR
-	registers.PSR = 0x01000000;
-	registers.PRIMASK = 0x0;
-	registers.FAULTMASK = 0x0;
-	registers.BASEPRI = 0x0;
-	registers.CONTROL = 0x0;
-
-	for (;;) {//main loop for one instruction cycle
-		//TODO: Detect in whether arm or thumb instruction mode at this point
-		//TODO: Check binary codes for which instructions should be executed
-		//TODO: Execute the instruction
-		//TODO: Change the value of cycle counter
-		//TODO: Check the interruption if the counter value is less than 0
-	}
 	return 0;
 }
 
