@@ -30,7 +30,7 @@
     <ClInclude Include="DummyMemoryMap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\virtual_memory\VirtualMemoryMap.h">
+    <ClInclude Include="VirtualMemoryMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClCompile Include="DummyMemoryMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\virtual_memory\virtual_memory.cpp">
+    <ClCompile Include="virtual_memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

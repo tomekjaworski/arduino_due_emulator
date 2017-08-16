@@ -2,7 +2,7 @@
 #define _VIRTUAL_MEMORY_MAP_HPP_
 
 
-#include "MemoryMap.h"
+#include "MemoryMap.hpp"
 
 #include <unordered_map>
 #include <memory>
