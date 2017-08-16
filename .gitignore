@@ -8,9 +8,12 @@
 /TextLoader/x64
 packages/
 x64/
-
 EventRecorderStub.scvd
 test0.uvguix.*
+
+#Documents
+*.pdf
+*.jpg
 
 #Log file
 *.log
