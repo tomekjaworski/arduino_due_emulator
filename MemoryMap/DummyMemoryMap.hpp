@@ -17,13 +17,13 @@ public:
 
 
 	// Inherited via IMemoryLoaderSink
-	virtual bool CanRead(uint32_t address) const override;
+	bool CanLoaderRead(uint32_t address);
 
-	virtual bool CanWrite(uint32_t address) const override;
+	bool CanLoaderWrite(uint32_t address);
 
-	virtual bool Read(uint32_t address, uint32_t & value) override;
+	bool LoaderRead(uint32_t address, uint8_t & value);
 
-	virtual bool Write(uint32_t address, uint32_t value) override;
+	bool LoaderWrite(uint32_t address, uint8_t value);
 
 };
 

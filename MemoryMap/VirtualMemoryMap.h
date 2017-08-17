@@ -8,26 +8,31 @@
 #include <memory>
 
 
+
 class VirtualMemoryMap : public IMemoryLoaderConnector
 {
 private:
-	uint32_t flash_0[256 * 1024 / 4];
-	uint32_t flash_1[256 * 1024 / 4];
-	uint32_t rom	[128 * 1024 / 4];
-	uint32_t sram_0	[64  * 1024 / 4];
-	uint32_t sram_1 [64 * 1024 / 4];
+	uint8_t flash_0[256 * 1024] = {};
+	uint32_t flash_1[256 * 1024 / 4] = {};
+	uint32_t rom[128 * 1024 / 4] = {};
+	uint32_t sram_0[64 * 1024 / 4] = {};
+	uint32_t sram_1[64 * 1024 / 4] = {};
 
 public:
 
 
 	// Inherited via IMemoryLoaderSink
-	virtual bool CanRead(uint32_t address) const override;
+	bool CanLoaderRead(uint32_t address);
 
-	virtual bool CanWrite(uint32_t address) const override;
+	bool CanLoaderWrite(uint32_t address);
 
-	virtual bool Read(uint32_t address, uint32_t & value) override;
+	bool Read(uint32_t address, uint32_t& value);
 
-	virtual bool Write(uint32_t address, uint32_t value) override;
+	bool Write(uint32_t address, uint32_t value);
+
+	bool LoaderRead(uint32_t address, uint8_t& value);
+
+	bool LoaderWrite(uint32_t address, uint8_t value);
 
 	void DumpMemory() {
 		int flash_size = 256 * 1024 / 4;
@@ -37,11 +42,12 @@ public:
 
 		printf("FLASH 0\n");
 		printf("---------\n");
-		for (int i = 0; i < (flash_size / 100); i++) {
-			printf("%2x ", flash_0[i]);
-			if (i % 15 == 0 && i!=0) {
-				printf("\n");
+		
+		for (int i = 0; i < (flash_size / 25); i++) {
+			if (i % 16 == 0 && i != 0) {
+				printf(" \n");
 			}
+			printf("%2x ", flash_0[i]);
 		}
 		printf("FLASH 1\n");
 		printf("---------\n");
