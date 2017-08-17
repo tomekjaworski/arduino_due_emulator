@@ -16,13 +16,21 @@
 #define FLASH_1_START		0x000C0000
 #define	FLASH_1_END			0x000FFFFF
 #define	ROM_START			0x00100000
-#define ROM_END			0x001FFFFF
+#define ROM_END				0x001FFFFF
+#define RESERVED_CODE_START	0x00200000
+#define	RESERVED_CODE_END	0x1FFFFFFF
 
 /** SUBSECTIONS OF SRAM SECTION*/
 #define SRAM_0_START		0x20000000
 #define	SRAM_0_END			0x2007FFFF
 #define	SRAM_1_START		0x20080000
 #define	SRAM_1_END			0x200FFFFF
+#define	NFC_SRAM_START		0x20100000
+#define	NFC_SRAM_END		0x2017FFFF
+#define	UOTGHS_DMA_START	0x20180000
+#define	UOTGHS_DMA_END		0x201FFFFF
+#define	UNDEFINED_ABORT_START	0x20200000
+#define	UNDEFINED_ABORT_END		0x3FFFFFFF
 
 /**
 	TODO
@@ -33,12 +41,27 @@
 
 bool VirtualMemoryMap::CanRead(uint32_t address) const
 {
-	return true;
+	if (!(address >= RESERVED_CODE_START && address <= RESERVED_CODE_END) && \
+		!(address >= UNDEFINED_ABORT_START && address <= UNDEFINED_ABORT_END)) {
+		return true;
+	}
+	else {
+		printf("Someone try to access restirected area! virtual_memory.cpp CanRead\n");
+		return false;
+	}
 }
 
 bool VirtualMemoryMap::CanWrite(uint32_t address) const
 {
-	return true;
+	if (!(address >= ROM_START && address <= ROM_END) &&\
+		!(address >= RESERVED_CODE_START && address <= RESERVED_CODE_END) &&\
+		!(address >= UNDEFINED_ABORT_START && address <= UNDEFINED_ABORT_END)) {
+		return true;
+	}
+	else {
+		printf("Someone try to access restirected area! virtual_memory.cpp CanWrite\n");
+		return false;
+	}
 }
 
 bool VirtualMemoryMap::Read(uint32_t address, uint32_t & value)
