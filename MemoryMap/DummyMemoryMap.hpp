@@ -21,9 +21,9 @@ public:
 
 	virtual bool CanWrite(uint32_t address) const override;
 
-	virtual bool Read(uint32_t address, uint8_t & value) override;
+	virtual bool Read(uint32_t address, uint32_t & value) override;
 
-	virtual bool Write(uint32_t address, uint8_t value) override;
+	virtual bool Write(uint32_t address, uint32_t value) override;
 
 };
 

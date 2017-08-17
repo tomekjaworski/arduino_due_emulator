@@ -11,12 +11,12 @@ bool DummyMemoryMap::CanWrite(uint32_t address) const
 	return true;
 }
 
-bool DummyMemoryMap::Read(uint32_t address, uint8_t & value)
+bool DummyMemoryMap::Read(uint32_t address, uint32_t & value)
 {
 	return false;
 }
 
-bool DummyMemoryMap::Write(uint32_t address, uint8_t value)
+bool DummyMemoryMap::Write(uint32_t address, uint32_t value)
 {
 	uint32_t page_id = address / 128;
 	address %= 128;
