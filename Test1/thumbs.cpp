@@ -569,16 +569,19 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 
 	/*Format18: unconditional branch*/
 	case 0b11100:
+	{
 		uint16_t Offset11 = (p_addr & 0b0000011111111111);
 		/*TODO: implement unconditional branch*/
 		break;
+	}
 	/*Format19: long branch with link*/
 	case 0b11110:
 	case 0b11111:
+	{
 		uint8_t lh_flag = (p_addr & 0b0000100000000000); // low/high offset bit
 		/*TODO: long branch with link*/
 		break;
-
+	}
 	/*TODO: implement other instructions*/
 	default: // For error message
 		fprintf(stderr, "No instruction detected!\n");
