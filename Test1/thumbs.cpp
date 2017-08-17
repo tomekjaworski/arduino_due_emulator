@@ -405,7 +405,7 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 			}
 		}
 		else {
-			/*Hi register operations, branch exchange*/
+			/*Format5: Hi register operations, branch exchange*/
 			{
 				uint8_t Rd = (p_addr & 0b111); //Rs or Hs
 				uint8_t Rs = (p_addr & 0b111000) >> 3; // Rs or Hs
@@ -445,6 +445,8 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 					regs[15] = regs[Rs + 8];
 					/*TODO: switch the state of processor*/
 					break;
+				default:
+					break;
 				}
 			}
 		}
@@ -456,8 +458,112 @@ inline void read_16th_inst(uint16_t p_addr, uint32_t regs[], uint8_t flash[]) {
 		regs[Rd] = flash[regs[15] + Word8]; //TODO: implement reader from address
 		break;
 	}
-	case 0b01010: /*TODO: implement this instruction*/
+
+	case 0b01010:
+	case 0b01011:
+	{
+		/*Format7: load/store with register offset*/
+		uint8_t bw_flag = (p_addr & 0b0000010000000000) >> 10; //the flag for byte/word
+		uint16_t Ro = (p_addr & 0b0000000111000000) >> 6; //offset register
+		uint16_t Rb = (p_addr & 0b0000000000111000) >> 3; //base register
+		uint16_t Rd = (p_addr & 0b0000000000000111); //destination register
+
+		if (bw_flag) { //byte length (STRB)
+			flash[regs[Rb] + regs[Ro]] = regs[Rd];
+		}
+		else { //word length (STR)
+			flash[regs[Rb] + regs[Ro]] = regs[Rd];
+		}
+		/*TODO: change the length between byte/word*/
 		break;
+	}
+	/*Format9: load store with the immediate offset*/
+	case 0b01100:
+	case 0b01101:
+	case 0b01110:
+	case 0b01111:
+	{
+		uint8_t bw_flag = (p_addr & 0b0001000000000000) >> 12;
+		uint8_t ls_flag = (p_addr & 0b0000100000000000) >> 11;
+		uint16_t Offset5 = (p_addr & 0b0000011111000000) >> 6;
+		uint16_t Rb = (p_addr & 0b0000000000111000) >> 3;
+		uint16_t Rd = (p_addr & 0b0000000000000111);
+		/*TODO: implement the execution of load/store*/
+		break;
+	}
+	/*Format10: load store halfword*/
+	case 0b10000: //store
+	{
+		uint16_t Offset5 = (p_addr & 0b0000011111000000) >> 6;
+		uint16_t Rb = (p_addr & 0b0000000000111000) >> 3;
+		uint16_t Rd = (p_addr & 0b0000000000000111);
+
+		/*TODO: implement halfword load*/
+		break;
+	}
+	case 0b10001: //load
+	{
+		uint16_t Offset5 = (p_addr & 0b0000011111000000) >> 6;
+		uint16_t Rb = (p_addr & 0b0000000000111000) >> 3;
+		uint16_t Rd = (p_addr & 0b0000000000000111);
+
+		/*TODO: implement halfword load*/
+		break;
+	}
+
+	/*Format11: SP-relative load/store*/
+	case 0b10010: //store
+	{
+		uint16_t Rd = (p_addr & 0b0000011100000000) >> 8;
+		uint16_t Word8 = (p_addr & 0b0000000011111111);
+
+		flash[regs[Rd]] = regs[13] + Word8;
+		break;
+	}
+	case 0b10011: //load
+	{
+		uint16_t Rd = (p_addr & 0b0000011100000000) >> 8;
+		uint16_t Word8 = (p_addr & 0b0000000011111111);
+
+		regs[Rd] = flash[regs[13] + Word8];
+		break;
+	}
+
+	/*Format12: load address*/
+	case 0b10100:
+	case 0b10101:
+	{
+		uint16_t Rd = (p_addr & 0b0000011100000000) >> 8;
+		uint16_t Word8 = p_addr & 0b0000000011111111;
+		/*TODO: implement load/store*/
+		break;
+	}
+
+	case 0b10110:
+	case 0b10111:
+		if ((p_addr & 0b0000111100000000) == 0b0) {
+			/*Format13: add offset to Stack Pointer*/
+			regs[13] = (uint16_t)(regs[13] + ((int)((p_addr & 0b0000000010000000) >> 7) - 1) * (p_addr & 0b0000000001111111));
+		}
+		else if((p_addr & 0b0000011000000000) == 0b0000010000000000){
+			/*Format14: push/pop registers*/
+			/*TODO: implement push\pop*/
+		}
+		else {
+			/*TODO: implement other instructions*/
+		}
+		break;
+	
+	/*Format 15: multiple load/store*/
+	case 0b11000:
+	case 0b11001:
+		break;
+
+	/*Format16: conditional branch*/
+	case 0b11010:
+	case 0b11011:
+		break;
+
 	/*TODO: implement other instructions*/
 	default: // For error message
 		fprintf(stderr, "No instruction detected!\n");
