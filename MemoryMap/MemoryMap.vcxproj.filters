@@ -41,7 +41,7 @@
     <ClCompile Include="DummyMemoryMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="virtual_memory.cpp">
+    <ClCompile Include="VirtualMemoryMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
