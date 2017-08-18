@@ -13,26 +13,26 @@ class VirtualMemoryMap : public IMemoryLoaderConnector
 {
 private:
 	uint8_t flash_0[256 * 1024] = {};
-	uint32_t flash_1[256 * 1024 / 4] = {};
-	uint32_t rom[128 * 1024 / 4] = {};
-	uint32_t sram_0[64 * 1024 / 4] = {};
-	uint32_t sram_1[64 * 1024 / 4] = {};
+	uint8_t flash_1[256 * 1024] = {};
+	uint8_t rom[128 * 1024] = {};
+	uint8_t sram_0[64 * 1024] = {};
+	uint8_t sram_1[64 * 1024] = {};
 
 public:
 
 
 	// Inherited via IMemoryLoaderSink
-	bool CanLoaderRead(uint32_t address);
+	virtual bool LoaderCanRead(uint32_t address) const override;
 
-	bool CanLoaderWrite(uint32_t address);
+	virtual bool LoaderCanWrite(uint32_t address) const override;
 
 	bool Read(uint32_t address, uint32_t& value);
 
 	bool Write(uint32_t address, uint32_t value);
 
-	bool LoaderRead(uint32_t address, uint8_t& value);
+	virtual bool LoaderRead(uint32_t address, uint8_t& value) override;
 
-	bool LoaderWrite(uint32_t address, uint8_t value);
+	virtual bool LoaderWrite(uint32_t address, uint8_t value) override;
 
 	void DumpMemory() {
 		int flash_size = 256 * 1024 / 4;

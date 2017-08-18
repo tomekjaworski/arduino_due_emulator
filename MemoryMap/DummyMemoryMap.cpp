@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "DummyMemoryMap.hpp"
 
-bool DummyMemoryMap::CanLoaderRead(uint32_t address)
+bool DummyMemoryMap::LoaderCanRead(uint32_t address) const
 {
 	return false;
 }
 
-bool DummyMemoryMap::CanLoaderWrite(uint32_t address)
+bool DummyMemoryMap::LoaderCanWrite(uint32_t address) const
 {
 	return true;
 }
