@@ -15,7 +15,7 @@
 template <typename P>
 void test(const char* file_name, bool expected_result)
 {
-	//DummyMemoryMap dmm;
+	//DummyMemoryMap memory;
 	VirtualMemoryMap memory;
 	P p(file_name);
 
