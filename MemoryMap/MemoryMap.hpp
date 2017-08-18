@@ -1,4 +1,4 @@
-#if !defined(_MEMORY_MAP_HPP_)
+#ifndef _MEMORY_MAP_HPP_
 #define _MEMORY_MAP_HPP_
 
 #include <stdint.h>

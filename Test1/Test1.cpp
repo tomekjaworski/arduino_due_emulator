@@ -9,7 +9,7 @@
 #include <map>
 #include "cpu.h"
 #include "instructionMask.h"
-#include "thumbs.h"
+//#include "thumbs.h"
 
 CPU cpu;
 uint32_t binary_data;
@@ -31,6 +31,8 @@ __forceinline uint32_t immediate(const uint32_t);
 
 __forceinline uint32_t arm_and(uint32_t, uint32_t);
 __forceinline uint32_t arm_add(uint32_t, uint32_t);
+
+__forceinline void read_16thumb_instruction(uint16_t);
 
 /**
 31-28 Cond
@@ -548,6 +550,461 @@ uint32_t arm_orr(uint32_t operand1, uint32_t operand2) {
 uint32_t arm_teq(uint32_t operand1, uint32_t operand2, uint32_t instruction) {
 	uint32_t result;
 	return result;
+}
+
+
+/*
+This function is for reading 16bit thumb instructions from binary codes.
+1. read first 5 bit
+2. decide which function is to be executed
+*/
+void read_16thumb_instruction(uint16_t inst_code) {
+
+	switch ((inst_code & 0xF800) >> 11) { //to decide which opcode this function uses first 5 bits
+
+	/*Format1: Move shifted register instructions family*/
+	case 0b00000: //MOVS Rd, Rs, LSL #Offset5
+	{
+		uint16_t Rd = inst_code & 0x0007;
+		uint16_t Rs = (inst_code & 0x0038) >> 3;
+		uint16_t Offset5 = (inst_code & 0x07C0) >> 6;
+
+		cpu.registers.general[Rd] = cpu.registers.general[Rs] << Offset5;
+		cpu.flags.C = ((cpu.registers.general[Rd] >> (32 - Offset5)) & 0x00000001);
+
+#ifdef _DEBUG //comment for debug mode
+		printf("logical left bit shift:\n");
+		printf("Rd:reg[%d] = 0x%08x, Rs:cpu.registers.general[%d] = 0x%08x, Offset5 = 0x%04x\n", Rd, cpu.registers.general[Rd], Rs, cpu.registers.general[Rs], Offset5);
+		printf("flag C:%1u\n", cpu.flags.C);
+#endif //_DEBUG
+		break;
+	}
+	case 0b00001: //MOVS Rd, Rs, LSR #Offset5
+	{
+		uint16_t Rd = inst_code & 0x0007;
+		uint16_t Rs = (inst_code & 0x0038) >> 3;
+		uint16_t Offset5 = (inst_code & 0x07C0) >> 6;
+
+		cpu.registers.general[Rd] = cpu.registers.general[Rs] >> Offset5;
+		cpu.flags.C = ((cpu.registers.general[Rd] >> (Offset5 - 1)) & 0x00000001);
+
+#ifdef _DEBUG //comment for debug mode
+		printf("logical right bit shift:\n");
+		printf("Rd:reg[%d] = 0x%08x, Rs:cpu.registers.general[%d] = 0x%08x, Offset5 = %u\n", Rd, cpu.registers.general[Rd], Rs, cpu.registers.general[Rs], Offset5);
+		printf("flag C:%1u\n", cpu.flags.C);
+#endif //_DEBUG
+		break;
+	}
+	case 0b00010: //MOVS Rd, Rs, ASR #Offset5
+	{
+		uint16_t Rd = (inst_code & 0x0007);
+		uint16_t Rs = (inst_code & 0x0038) >> 3;
+		uint32_t Offset5 = (inst_code & 0x07C0) >> 6;
+		if ((cpu.registers.general[Rd] & 0x80000000) == 0x80000000) { //if the top bit is 1
+			cpu.registers.general[Rd] = ((cpu.registers.general[Rs] >> Offset5) | (~0 << (32 - Offset5)));
+		}
+		else { // if the top bit is 0
+			cpu.registers.general[Rd] = (cpu.registers.general[Rs] >> Offset5); //this is the same as logical right shift bit
+		}
+#ifdef _DEBUG //comment for debug mode
+		printf("arithmetic right bit shift:\n");
+		printf("Rd:regs[%d] = 0x%08x, Rs:regs[%d] = 0x%08x, Offset5 = %u\n", Rd, cpu.registers.general[Rd], Rs, cpu.registers.general[Rs], Offset5);
+		printf("flag C:%1u\n", cpu.flags.C);
+#endif //_DEBUG
+		break;
+	}
+	/*Format2: Add, Substract instructions family*/
+	case 0b00011:
+	{
+		int32_t Rd = (inst_code & 0x0007);
+		uint16_t Rs = (inst_code & 0x0038) >> 3;
+		uint16_t Offset3 = (inst_code & 0x01C0) >> 6; // Offset3/Rn
+#ifdef _DEBUG //comment for debug mode
+		uint8_t op_flag = (inst_code & 0x0200) == 0x0200;
+		uint8_t imm_flag = (inst_code & 0x0400) == 0x0400;
+		char* im_offset = imm_flag ? "#Offset3" : "Rn";
+		uint8_t immv = imm_flag ? Offset3 : cpu.registers.general[Offset3];
+		if (op_flag) {
+			printf("ADDS: Rd, Rs, %s\n", im_offset);
+		}
+		else {
+			printf("SUBS: Rd, Rs, %s\n", im_offset);
+		}
+#endif //_DEBUG
+		switch ((inst_code & 0x0600) >> 9) {
+		case 0b00: //ADDS Rd, Rs, Rn
+			cpu.registers.general[Rd] = cpu.registers.general[Rs] + cpu.registers.general[Offset3];
+#ifdef _DEBUG
+			//TODO: implement carry flag
+#endif //_DEBUG
+			break;
+		case 0b01: //ADDS Rd, Rs, #Offset3
+			cpu.registers.general[Rd] = cpu.registers.general[Rs] + Offset3;
+#ifdef _DEBUG
+			//TODO: implement carry flag
+#endif //_DEBUG
+			break;
+		case 0b10: //SUBS Rd, Rs, Rn
+			cpu.registers.general[Rd] = cpu.registers.general[Rs] - cpu.registers.general[Offset3];
+#ifdef _DEBUG
+			//TODO: implement carry flag
+#endif //_DEBUG
+			break;
+		case 0b11: //ADDS Rd, Rs, #Offset3
+			cpu.registers.general[Rd] = cpu.registers.general[Rs] - Offset3;
+#ifdef _DEBUG
+			//TODO: implement carry flag
+#endif //_DEBUG
+			break;
+		}
+#ifdef _DEBUG //comment for debug mode
+		printf("Rd:regs[%d] = 0x%08x, Rs:regs[%d] = 0x%08x, %s = 0x%04x\n", Rd, cpu.registers.general[Rd], Rs, cpu.registers.general[Rs], im_offset, immv);
+		//TODO: output is needed which number of register assigned as Rn
+#endif //_DEBUG
+		break;
+	}
+
+	/*Format3: move, compare, add, substract immediate family*/
+	case 0b00100: //MOVS Rd, #Offset8
+		cpu.registers.general[(inst_code & 0b0000011100000000) >> 8] = (inst_code & 0x00FF);
+		break;
+	case 0b00101: //CMP Rd, #Offset8
+	{
+		int res = (int)cpu.registers.general[(inst_code & 0b0000011100000000) >> 8] - (inst_code & 0x00FF);
+		if (res == 0) {
+			/*TODO: implement setting condition flags*/
+			cpu.flags.Z = 1;
+			cpu.flags.N = 0;
+		}
+		else if (res < 0) {
+			cpu.flags.N = 1;
+		}
+		else {
+			cpu.flags.Z = 0;
+			cpu.flags.N = 0;
+		}
+#ifdef _DEBUG //comment for debug mode
+		printf("flags Z:%1u, N:%1u\n", cpu.flags.Z, cpu.flags.N);
+#endif //_DEBUG
+		break;
+	}
+	case 0b00110: //ADD Rd, Rd, #Offset8
+		cpu.registers.general[(inst_code & 0b0000011100000000) >> 8] += (inst_code & 0x00FF);
+		break;
+	case 0b00111: //SUBS Rd, Rd, #Offset8
+		cpu.registers.general[(inst_code & 0b0000011100000000) >> 8] -= (inst_code & 0x00FF);
+		break;
+		/*ALU operations & branch*/
+	case 0b01000:
+		if ((inst_code & 0b00000100000000000) != 0b0) {
+			/*Format4: ALU operations*/
+			{
+				uint8_t Rd = (inst_code & 0b111);
+				uint8_t Rs = (inst_code & 0b111000) >> 3;
+				switch ((inst_code & 0b0000001111000000) >> 6) {
+				case 0b0000: //ANDS Rd, Rd, Rs
+					cpu.registers.general[Rd] &= cpu.registers.general[Rs];
+					break;
+				case 0b0001: //EORS Rd, Rd, Rs
+					cpu.registers.general[Rd] ^= cpu.registers.general[Rs];
+					break;
+				case 0b0010: //MOVS Rd, Rd, LSL Rs
+					cpu.registers.general[Rd] <<= cpu.registers.general[Rs];
+					break;
+				case 0b0011: //MOVS Rd, Rd, LSR Rs
+					cpu.registers.general[Rd] >>= cpu.registers.general[Rs];
+					break;
+				case 0b0100: //MOVS Rd, Rd, ASR Rs
+				{
+					uint16_t Rd = (inst_code & 0x0007);
+					uint16_t Rs = (inst_code & 0x0038) >> 3;
+					if ((cpu.registers.general[Rd] & 0x80000000) == 0x80000000) { //if the top bit is 1
+						cpu.registers.general[Rd] = (cpu.registers.general[Rd] >> cpu.registers.general[Rs]) | (~0 << (32 - cpu.registers.general[Rs]));
+					}
+					else { // if the top bit is 0
+						cpu.registers.general[Rd] = (cpu.registers.general[Rd] >> cpu.registers.general[Rs]); //this is the same as logical right shift bit
+					}
+#ifdef _DEBUG //comment for debug mode
+					printf("arithmetic right bit shift:\n");
+					printf("Rd:reg[%d] = 0x%08x, Rs:regs[%d] = 0x%08x\n", Rd, cpu.registers.general[Rd], Rs, cpu.registers.general[Rs]);
+#endif //_DEBUG
+					break;
+				}
+					cpu.registers.general[Rd] >>= cpu.registers.general[Rs];
+					break;
+				case 0b0101: //ADCS Rd, Rd, Rs
+					cpu.registers.general[Rd] += cpu.registers.general[Rs];//TODO: implement C bit
+					break;
+				case 0b0110: //SBCS Rd, Rd, Rs
+					cpu.registers.general[Rd] >>= cpu.registers.general[Rs];//TODO: implement C bit
+					break;
+				case 0b0111: //MOVS Rd, Rd, ROR Rs
+					cpu.registers.general[Rd] += cpu.registers.general[Rs];//TODO:
+					break;
+				case 0b1000: //TST Rd, Rs
+					cpu.registers.general[Rd] -= cpu.registers.general[Rs];//TODO
+					break;
+				case 0b1001: //RSBS Rd, Rd, #0
+					cpu.registers.general[Rd] = -cpu.registers.general[Rs]; //TODO:
+					break;
+				case 0b1010: //CMP Rd, Rs
+					cpu.registers.general[Rd] >>= cpu.registers.general[Rs]; //TODO
+					break;
+				case 0b1011: //CMN Rd, Rs
+					cpu.registers.general[Rd] >>= cpu.registers.general[Rs]; //TODO
+					break;
+				case 0b1100: //ORRS Rd, Rd, Rs
+					cpu.registers.general[Rd] |= cpu.registers.general[Rs];
+					break;
+				case 0b1101: //MULS Rd, Rs, Rd
+					cpu.registers.general[Rd] *= cpu.registers.general[Rs];
+					break;
+				case 0b1110: //BICS Rd, Rd, Rs
+					cpu.registers.general[Rd] &= ~cpu.registers.general[Rs];
+					break;
+				case 0b1111: //MVNS Rd, Rs
+					cpu.registers.general[Rd] = ~cpu.registers.general[Rs];
+					break;
+				}
+			}
+		}
+		else {
+			/*Format5: Hi register operations, branch exchange*/
+			{
+				uint8_t Rd = (inst_code & 0b111); //Rs or Hs
+				uint8_t Rs = (inst_code & 0b111000) >> 3; // Rs or Hs
+				switch ((inst_code & 0b0000001111000000) >> 6) {
+				case 0b0001: //ADD Rd, Rd, Hs
+					cpu.registers.general[Rd] += cpu.registers.general[Rs + 8];
+					break;
+				case 0b0010: //ADD Hd, Hd, Rs
+					cpu.registers.general[Rd + 8] += cpu.registers.general[Rs];
+					break;
+				case 0b0011: //ADD Hd, Hd, Hs
+					cpu.registers.general[Rd + 8] += cpu.registers.general[Rs + 8];
+					break;
+				case 0b0101: //CMP Rd, Hs
+				{
+					int res = (int)cpu.registers.general[(inst_code & 0b0000000000111000) >> 3] - cpu.registers.general[(inst_code & 0x0007) + 8];
+					if (res == 0) {
+						/*TODO: implement setting condition flags*/
+						cpu.flags.Z = 1;
+						cpu.flags.N = 0;
+					}
+					else if (res < 0) {
+						cpu.flags.N = 1;
+					}
+					else {
+						cpu.flags.Z = 0;
+						cpu.flags.N = 0;
+					}
+				}
+				#ifdef _DEBUG //comment for debug mode
+					printf("flags Z:%1u, N:%1u\n", cpu.flags.Z, cpu.flags.N);
+				#endif //_DEBUG
+
+					break;
+				case 0b0110: //CMP Hd, Rs
+				{
+					int res = (int)cpu.registers.general[((inst_code & 0b0000000000111000) >> 3)] - cpu.registers.general[(inst_code & 0x0007) + 8];
+					if (res == 0) {
+						/*TODO: implement setting condition flags*/
+						cpu.flags.Z = 0;
+						cpu.flags.N = 0;
+					}
+					else if (res < 0) {
+						cpu.flags.N = 1;
+					}
+					else {
+						cpu.flags.Z = 0;
+						cpu.flags.N = 0;
+					}
+#ifdef _DEBUG //comment for debug mode
+					printf("flags Z:%1u, N:%1u\n", cpu.flags.Z, cpu.flags.N);
+#endif //_DEBUG
+					break;
+				}
+				case 0b0111: //CMP Hd, Hs
+				{
+					int res = (int)cpu.registers.general[((inst_code & 0b0000000000111000) >> 8) + 8] - cpu.registers.general[(inst_code & 0x0007) + 8];
+					if (res == 0) {
+						/*TODO: implement setting condition flags*/
+						cpu.flags.Z = 0;
+						cpu.flags.N = 0;
+					}
+					else if (res < 0) {
+						cpu.flags.N = 1;
+					}
+					else {
+						cpu.flags.Z = 0;
+						cpu.flags.N = 0;
+					}
+#ifdef _DEBUG //comment for debug mode
+					printf("flags Z:%1u, N:%1u\n", cpu.flags.Z, cpu.flags.N);
+#endif //_DEBUG
+					break;
+				}
+				case 0b1001: //MOV Rd, Hs
+					cpu.registers.general[Rd] = cpu.registers.general[Rs + 8];
+					break;
+				case 0b1010: //MOV Hd, Rs
+					cpu.registers.general[Rd + 8] = cpu.registers.general[Rs];
+					break;
+				case 0b1011: //MOV Hd, Hs
+					cpu.registers.general[Rd + 8] = cpu.registers.general[Rs + 8];
+					break;
+				case 0b1100: //BX Rs
+					cpu.registers.general[15] = cpu.registers.general[Rs];
+					/*TODO: switch the state of processor*/
+					break;
+				case 0b1101: //BX Hs
+					cpu.registers.general[15] = cpu.registers.general[Rs + 8];
+					/*TODO: switch the state of processor*/
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		break;
+	case 0b01001: //PC-relative load LDR Rd, [PC, #Imm]
+	{
+		uint32_t Rd = inst_code & 0b0000011100000000 >> 8;
+		uint32_t Word8 = inst_code & 0x00FF;
+		//TODO: implement reader from address
+		break;
+	}
+
+	case 0b01010:
+	case 0b01011:
+	{
+		/*Format7: load/store with register offset*/
+		uint8_t bw_flag = (inst_code & 0b0000010000000000) >> 10; //the flag for byte/word
+		uint16_t Ro = (inst_code & 0b0000000111000000) >> 6; //offset register
+		uint16_t Rb = (inst_code & 0b0000000000111000) >> 3; //base register
+		uint16_t Rd = (inst_code & 0b0000000000000111); //destination register
+
+		if (bw_flag) { //byte length (STRB)
+			//TODO: implement reader from address
+		}
+		else { //word length (STR)
+			//TODO: implement reader from address
+		}
+		/*TODO: change the length between byte/word*/
+		break;
+	}
+	/*Format9: load store with the immediate offset*/
+	case 0b01100:
+	case 0b01101:
+	case 0b01110:
+	case 0b01111:
+	{
+		uint8_t bw_flag = (inst_code & 0b0001000000000000) >> 12;
+		uint8_t ls_flag = (inst_code & 0b0000100000000000) >> 11;
+		uint16_t Offset5 = (inst_code & 0b0000011111000000) >> 6;
+		uint16_t Rb = (inst_code & 0b0000000000111000) >> 3;
+		uint16_t Rd = (inst_code & 0b0000000000000111);
+		/*TODO: implement the execution of load/store*/
+		break;
+	}
+	/*Format10: load store halfword*/
+	case 0b10000: //store
+	{
+		uint16_t Offset5 = (inst_code & 0b0000011111000000) >> 6;
+		uint16_t Rb = (inst_code & 0b0000000000111000) >> 3;
+		uint16_t Rd = (inst_code & 0b0000000000000111);
+
+		/*TODO: implement halfword load*/
+		break;
+	}
+	case 0b10001: //load
+	{
+		uint16_t Offset5 = (inst_code & 0b0000011111000000) >> 6;
+		uint16_t Rb = (inst_code & 0b0000000000111000) >> 3;
+		uint16_t Rd = (inst_code & 0b0000000000000111);
+
+		/*TODO: implement halfword load*/
+		break;
+	}
+
+	/*Format11: SP-relative load/store*/
+	case 0b10010: //store
+	{
+		uint16_t Rd = (inst_code & 0b0000011100000000) >> 8;
+		uint16_t Word8 = (inst_code & 0b0000000011111111);
+
+		//TODO: implement reader/writer from address
+		break;
+	}
+	case 0b10011: //load
+	{
+		uint16_t Rd = (inst_code & 0b0000011100000000) >> 8;
+		uint16_t Word8 = (inst_code & 0b0000000011111111);
+
+		//TODO: implement reader/writer from address
+		break;
+	}
+
+	/*Format12: load address*/
+	case 0b10100:
+	case 0b10101:
+	{
+		uint16_t Rd = (inst_code & 0b0000011100000000) >> 8;
+		uint16_t Word8 = inst_code & 0b0000000011111111;
+		/*TODO: implement load/store*/
+		break;
+	}
+
+	case 0b10110:
+	case 0b10111:
+		if ((inst_code & 0b0000111100000000) == 0b0) {
+			/*Format13: add offset to Stack Pointer*/
+			cpu.registers.general[13] = (uint16_t)(cpu.registers.general[13] + ((int)((inst_code & 0b0000000010000000) >> 7) - 1) * (inst_code & 0b0000000001111111));
+		}
+		else if ((inst_code & 0b0000011000000000) == 0b0000010000000000) {
+			/*Format14: push/pop registers*/
+			/*TODO: implement push/pop*/
+		}
+		else {
+			/*TODO: implement other instructions*/
+		}
+		break;
+
+		/*Format 15: multiple load/store*/
+	case 0b11000:
+	case 0b11001:
+		break;
+
+		/*Format16: conditional branch*/
+		/*Format17: software interrupt*/
+	case 0b11010:
+	case 0b11011:
+		/*TODO: implement conditional branch*/
+		/*TODO: implement software interrupt*/
+		break;
+
+		/*Format18: unconditional branch*/
+	case 0b11100:
+	{
+		uint16_t Offset11 = (inst_code & 0b0000011111111111);
+		/*TODO: implement unconditional branch*/
+		break;
+	}
+	/*Format19: long branch with link*/
+	case 0b11110:
+	case 0b11111:
+	{
+		uint8_t lh_flag = (inst_code & 0b0000100000000000); // low/high offset bit
+														 /*TODO: long branch with link*/
+		break;
+	}
+	/*TODO: implement other instructions*/
+	default: // For error message
+		fprintf(stderr, "No instruction detected!\n");
+		break;
+	}
+
+	return;
 }
 
 void dump_flags() {

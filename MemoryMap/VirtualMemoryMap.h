@@ -1,4 +1,4 @@
-#if !defined(_VIRTUAL_MEMORY_MAP_HPP_)
+#ifndef _VIRTUAL_MEMORY_MAP_HPP_
 #define _VIRTUAL_MEMORY_MAP_HPP_
 
 
@@ -66,5 +66,5 @@ public:
 	}
 };
 
-#endif // _DUMMY_MEMORY_MAP_HPP_
+#endif // _VIRTUAL_MEMORY_MAP_HPP_
 
