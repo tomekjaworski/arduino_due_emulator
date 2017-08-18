@@ -37,7 +37,7 @@
 	------------
 	1) Check bitbandings.
 */
-bool VirtualMemoryMap::CanLoaderRead(uint32_t address)
+bool VirtualMemoryMap::LoaderCanRead(uint32_t address) const
 {
 	if (!(address >= RESERVED_CODE_START && address <= RESERVED_CODE_END) && \
 		!(address >= UNDEFINED_ABORT_START && address <= UNDEFINED_ABORT_END)) {
@@ -49,7 +49,7 @@ bool VirtualMemoryMap::CanLoaderRead(uint32_t address)
 	}
 }
 
-bool VirtualMemoryMap::CanLoaderWrite(uint32_t address)
+bool VirtualMemoryMap::LoaderCanWrite(uint32_t address) const
 {
 	if (!(address >= ROM_START && address <= ROM_END) &&\
 		!(address >= RESERVED_CODE_START && address <= RESERVED_CODE_END) &&\
@@ -63,7 +63,7 @@ bool VirtualMemoryMap::CanLoaderWrite(uint32_t address)
 }
 
 bool VirtualMemoryMap::Read(uint32_t address, uint32_t& value) {
-	if (LoaderCanWrite(address)) {
+	/*if (LoaderCanWrite(address)) {
 		if (address >= FLASH_0_START && address <= FLASH_0_END) {
 			flash_0[address - FLASH_0_START] = value;
 		}
@@ -83,12 +83,12 @@ bool VirtualMemoryMap::Read(uint32_t address, uint32_t& value) {
 		if (address >= SRAM_1_START && address <= SRAM_1_END) {
 			sram_1[address - SRAM_1_START] = value;
 		}
-	}
+	}*/
 	return true;
 }
 
 bool VirtualMemoryMap::Write(uint32_t address, uint32_t value)  {
-	if (LoaderCanWrite(address)) {
+	/*if (LoaderCanWrite(address)) {
 		if (address >= FLASH_0_START && address <= FLASH_0_END) {
 			flash_0[address - FLASH_0_START] = value;
 		}
@@ -108,7 +108,7 @@ bool VirtualMemoryMap::Write(uint32_t address, uint32_t value)  {
 		if (address >= SRAM_1_START && address <= SRAM_1_END) {
 			sram_1[address - SRAM_1_START] = value;
 		}
-	}
+	}*/
 	return true;
 }
 
