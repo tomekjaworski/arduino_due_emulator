@@ -563,7 +563,7 @@ void read_16thumb_instruction(uint16_t inst_code) {
 	switch ((inst_code & 0xF800) >> 11) { //to decide which opcode this function uses first 5 bits
 
 	/*Format1: Move shifted register instructions family*/
-	case 0b00000: //MOVS Rd, Rs, LSL #Offset5
+	case 0b00000: //LSL Rd, Rs, #Offset5
 	{
 		uint16_t Rd = inst_code & 0x0007;
 		uint16_t Rs = (inst_code & 0x0038) >> 3;
@@ -572,14 +572,14 @@ void read_16thumb_instruction(uint16_t inst_code) {
 		cpu.registers.general[Rd] = cpu.registers.general[Rs] << Offset5;
 		cpu.flags.C = ((cpu.registers.general[Rd] >> (32 - Offset5)) & 0x00000001);
 
-#ifdef _DEBUG //comment for debug mode
-		printf("logical left bit shift:\n");
+		#ifdef _DEBUG //comment for debug mode
+		printf("logical left bit shift(LSL Rd, Rs, #Offset5):\n");
 		printf("Rd:reg[%d] = 0x%08x, Rs:cpu.registers.general[%d] = 0x%08x, Offset5 = 0x%04x\n", Rd, cpu.registers.general[Rd], Rs, cpu.registers.general[Rs], Offset5);
 		printf("flag C:%1u\n", cpu.flags.C);
-#endif //_DEBUG
+		#endif //_DEBUG
 		break;
 	}
-	case 0b00001: //MOVS Rd, Rs, LSR #Offset5
+	case 0b00001: //LSR Rd, Rs, #Offset5
 	{
 		uint16_t Rd = inst_code & 0x0007;
 		uint16_t Rs = (inst_code & 0x0038) >> 3;
@@ -588,14 +588,14 @@ void read_16thumb_instruction(uint16_t inst_code) {
 		cpu.registers.general[Rd] = cpu.registers.general[Rs] >> Offset5;
 		cpu.flags.C = ((cpu.registers.general[Rd] >> (Offset5 - 1)) & 0x00000001);
 
-#ifdef _DEBUG //comment for debug mode
-		printf("logical right bit shift:\n");
+		#ifdef _DEBUG //comment for debug mode
+		printf("logical right bit shift(LSR Rd, Rs, #Offset5):\n");
 		printf("Rd:reg[%d] = 0x%08x, Rs:cpu.registers.general[%d] = 0x%08x, Offset5 = %u\n", Rd, cpu.registers.general[Rd], Rs, cpu.registers.general[Rs], Offset5);
 		printf("flag C:%1u\n", cpu.flags.C);
-#endif //_DEBUG
+		#endif //_DEBUG
 		break;
 	}
-	case 0b00010: //MOVS Rd, Rs, ASR #Offset5
+	case 0b00010: //ASR Rd, Rs, #Offset5
 	{
 		uint16_t Rd = (inst_code & 0x0007);
 		uint16_t Rs = (inst_code & 0x0038) >> 3;
@@ -607,7 +607,7 @@ void read_16thumb_instruction(uint16_t inst_code) {
 			cpu.registers.general[Rd] = (cpu.registers.general[Rs] >> Offset5); //this is the same as logical right shift bit
 		}
 #ifdef _DEBUG //comment for debug mode
-		printf("arithmetic right bit shift:\n");
+		printf("arithmetic right bit shift(ASR Rd, Rs, #Offset5):\n");
 		printf("Rd:regs[%d] = 0x%08x, Rs:regs[%d] = 0x%08x, Offset5 = %u\n", Rd, cpu.registers.general[Rd], Rs, cpu.registers.general[Rs], Offset5);
 		printf("flag C:%1u\n", cpu.flags.C);
 #endif //_DEBUG
