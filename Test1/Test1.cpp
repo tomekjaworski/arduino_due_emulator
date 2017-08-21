@@ -1049,7 +1049,7 @@ int main()
 {
 	dump_cpu();
 
-
+	VirtualMemoryMap memory;
 
 	while (1) {};
 	
