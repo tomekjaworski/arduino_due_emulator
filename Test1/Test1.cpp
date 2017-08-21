@@ -1,6 +1,5 @@
 // Test1.cpp : Defines the entry point for the console application.
 //
-
 #include "stdafx.h"
 #include <stdio.h>
 #include <conio.h>
@@ -582,8 +581,10 @@ void dump_cpu() {
 
 int main()
 {
-	dump_cpu();
-
+	//dump_cpu();
+	uint32_t add;
+	add = BITBAND_SRAM(0x200FFFFF, 7);
+	
 	while (1) {};
 	
 	return 0;
