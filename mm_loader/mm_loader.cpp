@@ -56,6 +56,7 @@ int main()
 	//test<ELFParser>("test_axf\\test0_ok.axf", 1);
 
 	test<IntelHexParser>("test_hex\\GccApplication2.hex", 1);
+	//test<IntelHexParser>("test_hex\\GccApplication1.hex", 1);
 	/*test<IntelHexParser>("test_hex\\test1_ok.hex", 1);
 	test<IntelHexParser>("test_hex\\test2_ok.hex", 1);
 	test<IntelHexParser>("test_hex\\test3_ok.hex", 1);

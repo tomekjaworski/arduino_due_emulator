@@ -11,6 +11,14 @@
 #include "instructionMask.h"
 //#include "thumbs.h"
 
+#include <stdexcept>
+#include <iostream>
+#include <string>
+
+#include "..\MemoryMap\DummyMemoryMap.hpp"
+#include "..\TextLoader\TextLoader.hpp"
+#include "..\MemoryMap\VirtualMemoryMap.h"
+
 CPU cpu;
 uint32_t binary_data;
 
@@ -1040,6 +1048,8 @@ void dump_memory() {
 int main()
 {
 	dump_memory();
+
+
 
 	while (1) {};
 	
