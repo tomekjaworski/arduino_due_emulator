@@ -1,3 +1,8 @@
+#define BITBAND_SRAM_REF   0x20000000
+#define BITBAND_SRAM_BASE  0x22000000
+
+#define BITBAND_SRAM(a,b) ((BITBAND_SRAM_BASE + ((a - BITBAND_SRAM_REF) * 0x20) + (b * 4)))  // Convert SRAM address
+
 #define	R0 0
 #define	R1 1
 #define R2 2
