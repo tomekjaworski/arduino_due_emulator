@@ -25,6 +25,10 @@
 #define	SRAM_0_END			0x2007FFFF
 #define	SRAM_1_START		0x20080000
 #define	SRAM_1_END			0x200FFFFF
+#define SRAM_BIT_BANDING_START	0x20000000
+#define SRAM_BIT_BANDING_END	0x200FFFFF
+#define SRAM_BIT_BAND_ALIAS_START	0x22000000
+#define SRAM_BIT_BAND_ALIAS_END		0x23FFFFFF
 #define	NFC_SRAM_START		0x20100000
 #define	NFC_SRAM_END		0x2017FFFF
 #define	UOTGHS_DMA_START	0x20180000
@@ -62,54 +66,95 @@ bool VirtualMemoryMap::LoaderCanWrite(uint32_t address) const
 	}
 }
 
+/*
+	Read pieces and put them together.
+*/
 bool VirtualMemoryMap::Read(uint32_t address, uint32_t& value) {
-	/*if (LoaderCanWrite(address)) {
+	uint32_t buffer[4] = { 0,0,0,0 };
+	if (LoaderCanRead(address)) {
 		if (address >= FLASH_0_START && address <= FLASH_0_END) {
-			flash_0[address - FLASH_0_START] = value;
+			for (int i = 0; i < 4; i++) {
+				buffer[i] = flash_0[(address - FLASH_0_START)+i];
+			}
 		}
 
 		if (address >= FLASH_1_START && address <= FLASH_1_END) {
-			flash_1[address - FLASH_1_START] = value;
+			for (int i = 0; i < 4; i++) {
+				buffer[i] = flash_1[(address - FLASH_1_START) + i];
+			}
 		}
 
 		if (address >= ROM_START && address <= ROM_END) {
-			rom[address - ROM_START] = value;
+			for (int i = 0; i < 4; i++) {
+				buffer[i] = rom[(address - ROM_START) + i];
+			}
 		}
 
 		if (address >= SRAM_0_START && address <= SRAM_0_END) {
-			sram_0[address - SRAM_0_START] = value;
+			for (int i = 0; i < 4; i++) {
+				buffer[i] = sram_0[(address - SRAM_0_START) + i];
+			}
 		}
 
 		if (address >= SRAM_1_START && address <= SRAM_1_END) {
-			sram_1[address - SRAM_1_START] = value;
+			for (int i = 0; i < 4; i++) {
+				buffer[i] = sram_1[(address - SRAM_1_START) + i];
+			}
 		}
-	}*/
-	return true;
+
+		buffer[1] = buffer[1] << 8;
+		buffer[2] = buffer[2] << 16;
+		buffer[3] = buffer[3] << 24;
+
+		value = buffer[3] | buffer[2] | buffer[1] | buffer[0];
+
+		return true;
+	}
+	return false;
 }
 
+/*
+	Read whole value and split into pieces.
+*/
 bool VirtualMemoryMap::Write(uint32_t address, uint32_t value)  {
-	/*if (LoaderCanWrite(address)) {
+	uint8_t buffer[4] = { 0,0,0,0 };
+	buffer[0] = value & 0x000000ff;
+	buffer[1] = (value & 0x0000ff00) >> 8;;
+	buffer[2] = (value & 0x00ff0000) >> 16;
+	buffer[3] = (value & 0xff000000) >> 24;
+	if (LoaderCanWrite(address)) {
 		if (address >= FLASH_0_START && address <= FLASH_0_END) {
-			flash_0[address - FLASH_0_START] = value;
+			for (int i = 0; i < 4; i++) {
+				flash_0[(address - FLASH_0_START) + i] = buffer[i];
+			}
 		}
 
 		if (address >= FLASH_1_START && address <= FLASH_1_END) {
-			flash_1[address - FLASH_1_START] = value;
+			for (int i = 0; i < 4; i++) {
+				flash_1[(address - FLASH_1_START) + i] = buffer[i];
+			}
 		}
 
 		if (address >= ROM_START && address <= ROM_END) {
-			rom[address - ROM_START] = value;
+			for (int i = 0; i < 4; i++) {
+				rom[(address - ROM_START) + i] = buffer[i];
+			}
 		}
 
 		if (address >= SRAM_0_START && address <= SRAM_0_END) {
-			sram_0[address - SRAM_0_START] = value;
+			for (int i = 0; i < 4; i++) {
+				sram_0[(address - SRAM_0_START) + i] = buffer[i];
+			}
 		}
 
 		if (address >= SRAM_1_START && address <= SRAM_1_END) {
-			sram_1[address - SRAM_1_START] = value;
+			for (int i = 0; i < 4; i++) {
+				sram_1[(address - SRAM_1_START) + i] = buffer[i];
+			}
 		}
-	}*/
-	return true;
+		return true;
+	}
+	return false;
 }
 
 bool VirtualMemoryMap::LoaderRead(uint32_t address, uint8_t& value) 
