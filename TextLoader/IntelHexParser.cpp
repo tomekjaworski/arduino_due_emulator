@@ -105,9 +105,9 @@ int32_t IntelHexParser::Load(IMemoryLoaderConnector & connector)
 				addr += segment << 4;
 				for (int i = 0; i < byte_count; i++)
 				{
-					if (!connector.CanWrite(addr))
+					if (!connector.LoaderCanWrite(addr))
 						throw IntelHexParserException(b::str(b::format("Unable to write data to address %08x") % addr));
-					connector.Write(addr, data[i + 4]);
+					connector.LoaderWrite(addr, data[i + 4]);
 					addr++;
 					bytes_read++;
 				}

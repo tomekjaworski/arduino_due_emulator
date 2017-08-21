@@ -1,22 +1,22 @@
 #include "stdafx.h"
 #include "DummyMemoryMap.hpp"
 
-bool DummyMemoryMap::CanRead(uint32_t address) const
+bool DummyMemoryMap::LoaderCanRead(uint32_t address) const
 {
 	return false;
 }
 
-bool DummyMemoryMap::CanWrite(uint32_t address) const
+bool DummyMemoryMap::LoaderCanWrite(uint32_t address) const
 {
 	return true;
 }
 
-bool DummyMemoryMap::Read(uint32_t address, uint32_t & value)
+bool DummyMemoryMap::LoaderRead(uint32_t address, uint8_t & value)
 {
 	return false;
 }
 
-bool DummyMemoryMap::Write(uint32_t address, uint32_t value)
+bool DummyMemoryMap::LoaderWrite(uint32_t address, uint8_t value)
 {
 	uint32_t page_id = address / 128;
 	address %= 128;

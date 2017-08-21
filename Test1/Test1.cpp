@@ -1039,7 +1039,7 @@ void dump_registers() {
 	dump_flags function used for printing flags' values
 	dump_registers function used for printing registers' values
 */
-void dump_memory() {
+void dump_cpu() {
 	printf("CPU STATE\n\n");
 	dump_flags();
 	dump_registers();
@@ -1047,7 +1047,7 @@ void dump_memory() {
 
 int main()
 {
-	dump_memory();
+	dump_cpu();
 
 
 

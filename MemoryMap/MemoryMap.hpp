@@ -6,11 +6,11 @@
 class IMemoryLoaderConnector
 {
 public:
-	virtual bool CanRead(uint32_t address) const = 0;
-	virtual bool CanWrite(uint32_t address) const = 0;
+	virtual bool LoaderCanRead(uint32_t address) const = 0;
+	virtual bool LoaderCanWrite(uint32_t address) const = 0;
 
-	virtual bool Read(uint32_t address, uint32_t& value) = 0;
-	virtual bool Write(uint32_t address, uint32_t value) = 0;
+	virtual bool LoaderRead(uint32_t address, uint8_t& value) = 0;
+	virtual bool LoaderWrite(uint32_t address, uint8_t value) = 0;
 };
 
 
