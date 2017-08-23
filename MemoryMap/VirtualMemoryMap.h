@@ -22,6 +22,11 @@ public:
 
 
 	// Inherited via IMemoryLoaderSink
+
+	/**
+		LoaderRead and LoaderWrite functions for mm_loader project.
+		You need to use Read and Write functions for your simulation.
+	*/
 	virtual bool LoaderCanRead(uint32_t address) const override;
 
 	virtual bool LoaderCanWrite(uint32_t address) const override;
@@ -34,6 +39,10 @@ public:
 
 	virtual bool LoaderWrite(uint32_t address, uint8_t value) override;
 
+	/**
+		This function dumps memory to console screen. Don't forget to change
+		size value for dumping specific part. You couldn't see whole memory at once. 
+	*/
 	void DumpMemory() {
 		int flash_size = 256 * 1024 / 4;
 		int rom_size = 128 * 1024 / 4;

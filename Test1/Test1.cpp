@@ -501,9 +501,12 @@ uint32_t immediate(const uint32_t instruction) {
 };
 
 /**
+WARNING WARNING WARNING
+-----------------------
+THESE OPERATIONS HAS TO BE CHECKED!!!
+
 ARM INSTRUCTION SET
 */
-
 uint32_t arm_and_or_tst(uint32_t operand1, uint32_t operand2) {
 	uint32_t result;
 	result = (operand1 & operand2);
@@ -548,6 +551,8 @@ uint32_t arm_teq(uint32_t operand1, uint32_t operand2, uint32_t instruction) {
 	uint32_t result;
 	return result;
 }
+//END OF WARNING
+
 
 void dump_flags() {
 	printf("FLAGS\n");
