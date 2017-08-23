@@ -41,6 +41,9 @@ __forceinline uint32_t arm_add(uint32_t, uint32_t);
 
 __forceinline void read_16thumb_instruction(uint16_t);
 
+__forceinline uint16_t load_halfword(VirtualMemoryMap, uint32_t);
+__forceinline uint32_t load_word(VirtualMemoryMap, uint32_t);
+
 /**
 31-28 Cond
 27-4 mask
@@ -1044,14 +1047,96 @@ void dump_cpu() {
 	dump_registers();
 };
 
+uint16_t load_halfword(VirtualMemoryMap memory, uint32_t address) {
+	uint8_t bits[2];
+
+	memory.LoaderRead(address, bits[1]);
+	memory.LoaderRead(address + 0x00000001, bits[0]);
+	//memory.LoaderRead(address + 0x00000002, bits[2]);
+	//memory.LoaderRead(address + 0x00000003, bits[3]);
+
+	return (((uint16_t)bits[0]) << 2) + (uint16_t)bits[1];
+}
+
+uint32_t load_word(VirtualMemoryMap memory, uint32_t address) {
+	return (uint32_t)(load_halfword(memory, address)) + ((uint32_t)(load_halfword(memory, address)) << 4);
+}
+
 int main()
 {
 	//dump_cpu();
-	uint32_t add;
-	add = BITBAND_SRAM(0x200FFFFF, 7);
+	//uint32_t add;
+	//add = BITBAND_SRAM(0x200FFFFF, 7);
 	
-	while (1) {};
+	VirtualMemoryMap memory;
+
+	const char* file_name = "test_hex\\GccApplication2.hex";
+	IntelHexParser p(file_name);
+
+	std::cout << "Test for " << file_name << ": ";
+
+	bool exception = false;
+	std::string msg = "";
+	int bytes = -1;
+	try {
+		bytes = p.Load(memory);
+	}
+	catch (const std::exception& ex)
+	{
+		exception = true;
+		msg = ex.what();
+	}
+	catch (...)
+	{
+		exception = true;
+		msg = "(...)";
+	}
+
+	if (!exception == 1)
+		std::cout << " AS EXPECTED";
+	else
+		std::cout << " ERROR";
+	if (exception)
+		std::cout << " Exception: " << msg;
+	else
+		std::cout << "; Byte count=" << bytes;
+
+	std::cout << std::endl;
+	memory.DumpMemory();
+
+	/*set initial values for registers*/
+	cpu.registers.PSR = 0x01000000;
+	cpu.registers.BASEPRI = 0x00000000;
+	cpu.registers.CONTROL = 0x00000000;
+	cpu.registers.FAULTMASK = 0x00000000;
+	cpu.registers.PRIMASK = 0x00000000;
+	cpu.registers.general[14] = 0xFFFFFFFF; //LR
+
+	uint8_t bits_input[2];
+	memory.LoaderRead(0x00000004, bits_input[0]);
+	memory.LoaderRead(0x00000006, bits_input[1]);
+	printf("bits_input[0]: %2x, bits_input[1]: %2x\n", bits_input[0], bits_input[1]);
+	//cpu.registers.general[15] = load_word(memory, 0x00000004); //PC
+	//printf("initial value of PC: %x\n", cpu.registers.general[15]);
 	
+	/*for testing changing pointer*/
+
+	uint8_t bits_four[4];
+
+	bits_four[0] = 0x22;
+	bits_four[1] = 0x11;
+	bits_four[2] = 0x03;
+	bits_four[3] = 0x82;
+	for (int i = 0; i < 4; i++) {
+		printf("bits[%d]: %2x\n", i, bits_four[i]);
+	}
+	printf("all value: %8x\n", *(uint32_t*)bits_four);
+	for (;;) {
+
+
+	}
+	
+
 	return 0;
 }
 
