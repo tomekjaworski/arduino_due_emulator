@@ -1058,10 +1058,11 @@ int main()
 	
 	VirtualMemoryMap memory;
 	
-	const char* file_name = "test_hex\\GccApplication2.hex";
+	/*Reading memory from HEX file*/
+	const char* file_name = "test_hex\\GccApplication_add.hex";
 	IntelHexParser p(file_name);
 
-
+	#ifdef _DEBUG
 	bool exception = false;
 	std::string msg = "";
 	int bytes = -1;
@@ -1090,7 +1091,8 @@ int main()
 
 	std::cout << std::endl;
 	memory.DumpMemory();
-	
+	#endif //_DEBUG
+
 	/*set initial values for registers*/
 	cpu.registers.PSR = 0x01000000;
 	cpu.registers.BASEPRI = 0x00000000;
@@ -1099,28 +1101,38 @@ int main()
 	cpu.registers.PRIMASK = 0x00000000;
 	cpu.registers.general[14] = 0xFFFFFFFF; //LR
 
-	/*
+	
 	memory.Read(0x00080000, cpu.registers.general[13]); //SP
-	printf("initial value of SP: %x\n", cpu.registers.general[13]);
 	memory.Read(0x00080004, cpu.registers.general[15]); //PC
-	printf("initial value of PC: %x\n", cpu.registers.general[15]);
-	*/
-	/*for testing changing pointer*/
-	/*
-	uint8_t bits_four[4];
 
-	bits_four[0] = 0x22;
-	bits_four[1] = 0x11;
-	bits_four[2] = 0x03;
-	bits_four[3] = 0x82;
-	for (int i = 0; i < 4; i++) {
-		printf("bits[%d]: %2x\n", i, bits_four[i]);
-	}
-	printf("all value: %8x\n", *(uint32_t*)bits_four);
-	*/
+	#ifdef _DEBUG
+	printf("initial value of SP: 0x%08x\n", cpu.registers.general[13]);	
+	printf("initial value of PC: 0x%08x\n", cpu.registers.general[15]);
+	#endif // _DEBUG
+	
 	for (;;) {
-
-
+		uint32_t thumb_code;
+		memory.Read(cpu.registers.general[15], thumb_code);
+#ifdef _DEBUG
+		printf("thumb_code: %08x\n", thumb_code);
+#endif //_DEBUG
+		if ((thumb_code & 0xe000) != 0xe000) { //if it is 16 bit instruction
+		cpu.registers.general[15] += 0x2;
+		read_16thumb_instruction((uint16_t)(thumb_code >> 16));
+		#ifdef _DEBUG
+		printf("16bit thumb instruction executed. code:%04x\n", (uint16_t)(thumb_code >> 16));
+		#endif //_DEBUG
+		}
+		else if ((thumb_code & 0xf800) == 0xe000) {
+			//branch_inst(p_addr, regs, flash);
+			printf("branch instruction executed.\n");
+		}
+		else { //if they are 32 bit operations
+			//read_32th_inst((uint32_t)p_addr, regs, flash);
+			#ifdef _DEBUG
+			printf("32bit thumb instruction executed.\n");
+			#endif //_DEBUG
+		}
 	}
 	
 
