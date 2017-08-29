@@ -56,27 +56,27 @@ public:
 			if (i % 16 == 0 && i != 0) {
 				printf(" \n");
 			}
-			printf("%2x ", flash_0[i]);
+			printf("%02x ", flash_0[i]);
 		}
 		printf("FLASH 1\n");
 		printf("---------\n");
 		for (int i = 0; i < check_content; i++) {
-			printf("%x\n", flash_1[i]);
+			printf("%02x\n", flash_1[i]);
 		}
 		printf("ROM\n");
 		printf("---------\n");
 		for (int i = 0; i < check_content; i++) {
-			printf("%x\n", rom[i]);
+			printf("%02x\n", rom[i]);
 		}
 		printf("SRAM 0\n");
 		printf("---------\n");
 		for (int i = 0; i < check_content; i++) {
-			printf("%x\n", sram_0[i]);
+			printf("%02x\n", sram_0[i]);
 		}
 		printf("SRAM 1\n");
 		printf("---------\n");
 		for (int i = 0; i < check_content; i++) {
-			printf("%x\n", sram_1[i]);
+			printf("%02x\n", sram_1[i]);
 		}
 	}
 };

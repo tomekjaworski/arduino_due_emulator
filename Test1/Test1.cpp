@@ -617,7 +617,7 @@ void read_16thumb_instruction(uint16_t inst_code) {
 			cpu.registers.general[Rd] = ((cpu.registers.general[Rs] >> Offset5) | (~0 << (32 - Offset5)));
 		}
 		else { // if the top bit is 0
-			cpu.registers.general[Rd] = (cpu.registers.general[Rs] >> Offset5); //this is the same as logical right shift bit
+			cpu.registers.general[Rd] = (cpu.registers.general[Rs] >> Offset5); //this is the same as logical right bit shift
 		}
 #ifdef _DEBUG //comment for debug mode
 		printf("arithmetic right bit shift(ASR Rd, Rs, #Offset5):\n");
@@ -632,7 +632,8 @@ void read_16thumb_instruction(uint16_t inst_code) {
 		int32_t Rd = (inst_code & 0x0007);
 		uint16_t Rs = (inst_code & 0x0038) >> 3;
 		uint16_t Offset3 = (inst_code & 0x01C0) >> 6; // Offset3/Rn
-#ifdef _DEBUG //comment for debug mode
+
+		#ifdef _DEBUG //comment for debug mode
 		uint8_t op_flag = (inst_code & 0x0200) == 0x0200;
 		uint8_t imm_flag = (inst_code & 0x0400) == 0x0400;
 		char* im_offset = imm_flag ? "#Offset3" : "Rn";
@@ -679,13 +680,19 @@ void read_16thumb_instruction(uint16_t inst_code) {
 
 	/*Format3: move, compare, add, substract immediate family*/
 	case 0b00100: //MOVS Rd, #Offset8
+		#ifdef _DEBUG
+		printf("MOVS Rd, #Offset8; Rd:R[%d]= 0x%08x", cpu.registers.general[(inst_code & 0b0000011100000000) >> 8]);
+		#endif
 		cpu.registers.general[(inst_code & 0b0000011100000000) >> 8] = (inst_code & 0x00FF);
+		#ifdef _DEBUG
+		printf("-> 0x%08x", (inst_code & 0x00FF));
+		#endif //_DEBUG
 		break;
 	case 0b00101: //CMP Rd, #Offset8
 	{
-		int res = (int)cpu.registers.general[(inst_code & 0b0000011100000000) >> 8] - (inst_code & 0x00FF);
+		int res = (int)(cpu.registers.general[(inst_code & 0b0000011100000000) >> 8] - (inst_code & 0x00FF));
 		if (res == 0) {
-			/*TODO: implement setting condition flags*/
+
 			cpu.flags.Z = 1;
 			cpu.flags.N = 0;
 		}
@@ -697,12 +704,16 @@ void read_16thumb_instruction(uint16_t inst_code) {
 			cpu.flags.N = 0;
 		}
 #ifdef _DEBUG //comment for debug mode
+		printf("CMP Rd, #Offset8; Rd:R[%d]= 0x%08x, Offset= 0x%08x", (inst_code & 0b0000011100000000) >> 8, cpu.registers.general[(inst_code & 0b0000011100000000) >> 8], (inst_code & 0x00FF));
 		printf("flags Z:%1u, N:%1u\n", cpu.flags.Z, cpu.flags.N);
 #endif //_DEBUG
 		break;
 	}
 	case 0b00110: //ADD Rd, Rd, #Offset8
 		cpu.registers.general[(inst_code & 0b0000011100000000) >> 8] += (inst_code & 0x00FF);
+		#ifdef _DEBUG
+		printf("ADD Rd, Rd, #Offset8; Rd:R[%u]=0x%08x, Offset=0x%08x", (inst_code & 0b0000011100000000) >> 8, cpu.registers.general[(inst_code & 0b0000011100000000) >> 8], (inst_code & 0x00FF));
+		#endif //_DEBUG
 		break;
 	case 0b00111: //SUBS Rd, Rd, #Offset8
 		cpu.registers.general[(inst_code & 0b0000011100000000) >> 8] -= (inst_code & 0x00FF);
@@ -1110,6 +1121,7 @@ int main()
 	printf("initial value of PC: 0x%08x\n", cpu.registers.general[15]);
 	#endif // _DEBUG
 	
+	/*main cycle of processing*/
 	for (;;) {
 		uint32_t thumb_code;
 		memory.Read(cpu.registers.general[15], thumb_code);
